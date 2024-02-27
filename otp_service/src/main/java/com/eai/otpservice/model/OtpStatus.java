@@ -4,5 +4,6 @@ public enum OtpStatus {
     PENDING,
     USED,
     EXPIRED,
-    FAILED
+    FAILED,
+    BLOCkED
 }

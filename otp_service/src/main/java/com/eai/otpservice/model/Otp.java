@@ -1,18 +1,19 @@
 package com.eai.otpservice.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "otp_phone")
-public class OtpPhone {
+@Table(name = "otp")
+public class Otp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,14 +22,8 @@ public class OtpPhone {
     @Column(name = "id_client")
     private Long idClient;
 
-    @Column(name = "phone_num")
-    private String phoneNum;
-
-    @Column(name = "code")
-    private String code;
-
-    @Column(name = "expiration_date")
-    private Date expirationDate;
+    @Column(name = "otp_code")
+    private String storedOtp;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

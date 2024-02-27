@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 public class OtpPhoneRequest {
 
     private String phoneNumber;
+    private String userInput;
+    private byte[] userId;
+
 
 
     // Constructors, getters, setters
