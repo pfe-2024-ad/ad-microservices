@@ -14,6 +14,6 @@ public class EmailSenderController {
    @PostMapping("/send-email")
    public String sendEmail(@RequestBody EmailSender request) {
        emailSenderService.sendEmail(request.getEmail(),   request.getSubject(), request.getVariables(), request.getCheminTemplate());
-       return "Email envoyé avec succès à " + request.getEmail()+ " avec le code OTP : " + request.getCodeOtpEmail() + "  et avec le secretKey " + request.getSecretKey();
+       return "Email envoyé avec succès à " + request.getEmail()+ " avec le code OTP : " + request.getCodeOtpEmail();
    }
 }
