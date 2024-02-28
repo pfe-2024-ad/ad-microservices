@@ -11,18 +11,20 @@
 
     <name>Agence_direct</name>
 
-    <modules>
-        <module>otp_service</module>
-      <module>eureka_server</module>
-      <module>client_service</module>
-      <module>payment_service</module>
-      <module>satisfaction_service</module>
-      <module>relanche_service</module>
-      <module>administrateur_service</module>
-      <module>signature_service</module>
-      <module>rdv_service</module>
-      <module>notification_service</module>
-    </modules>
+  <modules>
+    <module>otp_service</module>
+    <module>eureka_server</module>
+    <module>client_service</module>
+    <module>payment_service</module>
+    <module>satisfaction_service</module>
+    <module>relanche_service</module>
+    <module>administrateur_service</module>
+    <module>signature_service</module>
+    <module>rdv_service</module>
+    <module>notification_service</module>
+    <module>apigateway_service</module>
+
+  </modules>
 
 
   <properties>
