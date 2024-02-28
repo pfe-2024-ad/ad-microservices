@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sending Email</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- use the font -->
+    <style>
+        @media screen and (max-width: 768px) {
+            table {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<table align="center" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+    <tr >
+        <th style="height: 25px; background-color: rgb(2, 149, 192)">&nbsp;</th>
+    </tr>
+    <tr>
+        <th class="gradientBG" style="height: 5px; background-color: rgb(2, 149, 192)">&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr >
+        <td style="padding: 30px 60px; font-size: 14px;">
+            <p>Objet: <b><span th:text="${subject}"></span></b></p>
+            <p>Madame, Monsieur, <p>
+            <p>Nous avons le plaisir de vous faire parvenir votre code de connexion à votre espace personnel Agence Directe :</P>
+            <p>
+                <b>Code de Confirmation : <span th:text="${codeOtpEmail}"></span></b>
+            </p>
+            <p>Ce code est valable pour une durée d'<b>Une heure</b>
+            </p>
+            <!--
+            <p>Pour toute demande d'information, nous vous invitons à contacter notre agence en ligne,
+                à votre disposition 6 jours sur 7 du lundi au vendredi, de 8h à 20h et le samedi de 8h à 13h
+                (heure Maroc), au +212 5 20 39 30 30, ou par e-mail à
+                <i><span th:text="${code_otp_email}"></span></i>
+            </p> -->
+            <p><b>BANK OF AFRICA vous remercie pour votre confiance,</b></p>
+        </td>
+    </tbody>
+</table>
+</body>
+</html>

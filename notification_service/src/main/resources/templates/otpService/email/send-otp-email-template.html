@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sending Email</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- use the font -->
+    <style>
+        @media screen and (max-width: 768px) {
+            table {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<table align="center" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+    <tr >
+        <th style="height: 25px; background-color: rgb(2, 149, 192)">&nbsp;</th>
+    </tr>
+    <tr>
+        <th class="gradientBG" style="height: 5px; background-color: rgb(2, 149, 192)">&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr >
+        <td style="padding: 30px 60px; font-size: 14px;">
+            <p>Objet: <b><span th:text="${subject}"></span></b></p>
+            <p>Madame, Monsieur, <p>
+            <p>Dans le cadre de votre demande d’ouverture de compte en ligne Bank Of Africa, nous avons le plaisir de vous communiquer le Code de Confirmation de votre adresse email </p>
+            <p>
+               <b>Code de Confirmation : <span th:text="${codeOtpEmail}"></span></b>
+            </p>
+            <p>Ce code est valable pour une durée de:
+                <b>15 minutes</b>
+            </p>
+            <p><b>Dans l'attente de vous compter parmi nos clients.</b></p>
+        </td>
+    </tbody>
+</table>
+</body>
+</html>
