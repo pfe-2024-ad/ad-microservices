@@ -12,15 +12,11 @@ spring:
         - id: client-service
           uri: lb://CLIENT-SERVICE
           predicates:
-            - Path=/api/clients/**
+            - Path=/agd/client-service/**
         - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
-            - Path=/api/notification/**
-        - id: otp-service
-          uri: lb://OTP-SERVICE
-          predicates:
-            - Path=/api/otp/**
+            - Path=/agd/notification-service/**
 
 eureka:
   instance:
@@ -30,6 +26,7 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
 
 
 
