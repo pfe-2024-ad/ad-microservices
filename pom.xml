@@ -4,15 +4,22 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.2</version>
+    <relativePath/>
+    <!--  lookup parent from repository  -->
+  </parent>
+
   <groupId>com.eai</groupId>
   <artifactId>Agence_direct</artifactId>
   <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-
-    <name>Agence_direct</name>
+  <packaging>pom</packaging>
+  <name>Agence_direct</name>
 
   <modules>
-    <module>otp_service</module>
+    <module>security_service</module>
     <module>eureka_server</module>
     <module>client_service</module>
     <module>payment_service</module>
@@ -23,6 +30,7 @@
     <module>rdv_service</module>
     <module>notification_service</module>
     <module>apigateway_service</module>
+    <module>openfeign_service</module>
 
   </modules>
 
