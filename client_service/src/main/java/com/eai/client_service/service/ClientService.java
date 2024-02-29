@@ -52,14 +52,7 @@ public class ClientService {
         );
         Client client = clientRepository.findByEmailAndClientStatusIn(email, statuses);
 
-        if(client == null){
-            //client not exist generate otp email
-            return false;
-        }
-        else{
-            //client exist passe a login and generate otp
-            return true;
-        }
+        return client != null;
 
     }
 }
