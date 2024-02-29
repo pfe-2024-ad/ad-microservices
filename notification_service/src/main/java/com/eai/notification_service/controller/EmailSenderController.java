@@ -13,7 +13,7 @@ public class EmailSenderController {
 
    @PostMapping("/send-email")
    public String sendEmail(@RequestBody EmailSender request) {
-       emailSenderService.sendEmail(request.getEmail(),   request.getSubject(), request.getVariables(), request.getCheminTemplate());
-       return "Email envoyé avec succès à " + request.getEmail()+ " avec le code OTP : " + request.getCodeOtpEmail();
+       return emailSenderService.sendEmail(request.getEmail(), request.getSubject(), request.getVariables(), request.getCheminTemplate());
+
    }
 }
