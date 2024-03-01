@@ -28,8 +28,9 @@ public class ClientService {
 
     public String addPhone(Integer idClient, String indicatiTel, String numTel){
 
-        Optional<Client> client = clientRepository.findById(idClient);
-        if(client.isPresent()){
+        Optional<Client> clientOptional = clientRepository.findById(idClient);
+        if(clientOptional.isPresent()){
+            Client client = clientOptional.get(); // Extracting the Client object from Optional
             client.setClientStatus(ClientStatus.PROSPECT);
             client.setIndicatifTel(indicatiTel);
             client.setNumTel(numTel);
