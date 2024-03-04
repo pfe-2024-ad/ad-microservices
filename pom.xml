@@ -4,13 +4,6 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.2</version>
-    <relativePath/>
-    <!--  lookup parent from repository  -->
-  </parent>
 
   <groupId>com.eai</groupId>
   <artifactId>Agence_direct</artifactId>
@@ -36,13 +29,13 @@
 
 
   <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>19</maven.compiler.source>
-    <maven.compiler.target>19</maven.compiler.target>
-    <java.version>17</java.version>
-    <spring.boot.maven.plugin.version>3.2.2</spring.boot.maven.plugin.version>
-    <spring.boot.dependecies.version>3.2.2</spring.boot.dependecies.version>
-    <spring-cloud.version>2023.0.0</spring-cloud.version>
+    <java.version>1.8</java.version>
+    <spring.boot.maven.plugin.version>2.5.2</spring.boot.maven.plugin.version>
+    <spring.boot.dependecies.version>2.5.2</spring.boot.dependecies.version>
+    <spring-cloud.version>2020.0.3</spring-cloud.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -62,11 +55,8 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <dependencies>
-    <dependency>
-      <groupId> org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -76,11 +66,11 @@
       <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.thymeleaf</groupId>
-      <artifactId>thymeleaf-spring5</artifactId>
-      <version>3.0.11.RELEASE</version>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
     </dependency>
   </dependencies>
+
   <build>
     <pluginManagement>
       <!--  lock down plugins versions to avoid using Maven defaults (may be moved to parent pom)  -->
@@ -93,4 +83,5 @@
       </plugins>
     </pluginManagement>
   </build>
+
 </project>

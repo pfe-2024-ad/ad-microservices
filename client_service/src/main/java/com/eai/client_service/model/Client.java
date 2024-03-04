@@ -1,7 +1,7 @@
 package com.eai.client_service.model;
 
 import com.eai.client_service.outils.enums.ClientStatus;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
 
 
