@@ -5,20 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OtpPhoneRequest {
-
-    private String keyPhone;
-    private String numPhone;
+public class OtpEmailRequest {
+    private String email;
     private String userInput;
-    private UUID idClient;
-
-
-
-    // Constructors, getters, setters
 }
