@@ -5,8 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@FeignClient("notification-service")
-@RequestMapping("/agd/notification-service")
+@FeignClient(name = "notification-service", path = "/agd/notification-service")
 
 public interface NotificationClient {
 
