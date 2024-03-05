@@ -1,5 +1,6 @@
 package com.eai.client_service.controller;
 
+import com.eai.client_service.otp.InfoClientRequest;
 import com.eai.client_service.service.ClientService;
 import com.eai.openfeignservice.user.ClientRequest;
 
@@ -15,7 +16,7 @@ public class ClientController {
    @PostMapping("email")
    public Integer saveEmail(@RequestBody ClientRequest request){
 
-       return clientService.saveClient(request.getEmail());
+       return clientService.saveClient(request);
    }
 
    @PostMapping("phone")
@@ -23,6 +24,12 @@ public class ClientController {
 
        return clientService.addPhone(request.getIdClient(), request.getIndicatifTel(), request.getNumTel());
    }
+
+    @PostMapping("update-info-client")
+    public String updateInfoClient(@RequestBody InfoClientRequest request){
+
+        return clientService.updateInfoClient(request);
+    }
 
 
     @PostMapping("check-client")
