@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@FeignClient("client-service")
-@RequestMapping("/agd/client-service")
+
+@FeignClient(name = "client-service", path = "/agd/client-service")
 public interface UserClient {
     @PostMapping("email")
     Integer saveEmail(@RequestBody ClientRequest request);
