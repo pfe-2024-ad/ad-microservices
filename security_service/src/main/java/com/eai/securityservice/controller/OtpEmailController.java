@@ -1,30 +1,24 @@
 package com.eai.securityservice.controller;
 
-import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.UserClient;
 import com.eai.securityservice.dto.OtpEmailRequest;
-import com.eai.securityservice.model.Counter;
-import com.eai.securityservice.model.History;
-import com.eai.securityservice.model.Otp;
+import com.eai.securityservice.model.*;
+import com.eai.securityservice.outiles.enums.OtpGenerationStatusEnum;
+import com.eai.securityservice.outiles.enums.StatusOTP;
 import com.eai.securityservice.repository.CounterRepository;
 import com.eai.securityservice.repository.HistoryRepository;
 import com.eai.securityservice.repository.OtpRepository;
 import com.eai.securityservice.service.OtpCompareService;
 import com.eai.securityservice.service.OtpGenerateService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -36,52 +30,28 @@ public class OtpEmailController {
     private final OtpCompareService otpCompareService;
     private final OtpRepository otpRepository;
     private final HistoryRepository historyRepository;
-
     private final Counter counter;
     private final CounterRepository counterRepository;
-
     private final NotificationClient notificationClient;
     private final UserClient userClient;
 
     @PostMapping("/generate")
-    public String generatePhoneOtp(@RequestBody OtpEmailRequest otpEmailRequest ) {
+    public String generateEmailOtp(@RequestBody OtpEmailRequest otpEmailRequest ) {
+
       ClientRequest client = ClientRequest.builder()
                 .email(otpEmailRequest.getEmail())
                 .build();
       if(!userClient.isClientExist(client)) {
           String generatedOtp = otpGenerateService.generateOtp(counter.getCounter());
-
           Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
           History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
-          Map<String, Object> responseMap = new HashMap<>();
-
-          String subject = "Agence Directe – Ouverture de compte en ligne";
-          String cheminTemplate = "otpService/email/send-otp-email-template.html";
-
-
-          Map<String, Object> variables = new HashMap<>();
-          variables.put("codeOtpEmail", generatedOtp);
-          variables.put("subject", subject);
-
-          EmailSender emailSender = EmailSender.builder()
-                  .email(otpEmailRequest.getEmail())
-                  .codeOtpEmail(generatedOtp)
-                  .subject(subject)
-                  .variables(variables)
-                  .cheminTemplate(cheminTemplate)
-                  .build();
-
+          String isSent;
 
           if (otp == null) {
               history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
               otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-
-              otpRepository.save(otp);
-              historyRepository.save(history);
-              counter.incrementCounter();
-              counterRepository.save(counter);
-
-              return notificationClient.sendEmail(emailSender);
+              notificationClient.sendEmail(otpEmailRequest.getEmail(), generatedOtp);
+              isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
           } else {
               if (history.getNumGeneration() < 5) {
                   history.setCounter(counter.getCounter());
@@ -90,34 +60,31 @@ public class OtpEmailController {
                   otp.setCounter(counter.getCounter());
                   otp.setDateGeneration(new Date());
                   otp.setAttempts(0);
+                  notificationClient.sendEmail(otpEmailRequest.getEmail(), generatedOtp);
+                  isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
-                  otpRepository.save(otp);
-                  historyRepository.save(history);
-                  counter.incrementCounter();
-                  counterRepository.save(counter);
-
-                  return notificationClient.sendEmail(emailSender);
-              } else if (history.getNumGeneration() >= 5 && isPast30Minutes(history.getDateGeneration()) > 1) {
+              } else if (history.getNumGeneration() == 5 && isPast30Minutes(history.getDateGeneration()) > 1) {
                   history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                   otp.setCounter(counter.getCounter());
                   otp.setDateGeneration(new Date());
                   otp.setAttempts(0);
-
-                  otpRepository.save(otp);
-                  historyRepository.save(history);
-                  counter.incrementCounter();
-                  counterRepository.save(counter);
-
-                  return notificationClient.sendEmail(emailSender);
+                  notificationClient.sendEmail(otpEmailRequest.getEmail(), generatedOtp);
+                  isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
 
               } else {
-                  return "error, Veuillez réessayer plus tard. Vous avez dépassé le nombre maximal de générations d'OTP autorisées (5) ou la dernière tentative était il y a moins de 30 minutes.";
+                  isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
               }
           }
-      }else{
-          return "error, Cette adresse email est déjà utilisée.";
-      }
+
+        otpRepository.save(otp);
+        historyRepository.save(history);
+        counter.incrementCounter();
+        counterRepository.save(counter);
+        return isSent;
+    }else{
+        return OtpGenerationStatusEnum.EMAIL_EXIST_ERROR.getLabel();
+        }
     }
 
     private long isPast30Minutes(Date date) {
@@ -125,37 +92,32 @@ public class OtpEmailController {
         return TimeUnit.MILLISECONDS.toMinutes(diffInMilliseconds);
     }
     @PostMapping("/compare")
-    public ResponseEntity<Map<String, Object>> compareOtp(@RequestBody OtpEmailRequest otpEmailRequest) {
-
+    public String compareOtp(@RequestBody OtpEmailRequest otpEmailRequest) {
             // Use the counter value to verify the OTP
-
-            Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
-            Map<String, Object> responseMap = new HashMap<>();
-
-        if (isPast30Minutes(otp.getDateGeneration()) < 10) {
+        Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+        if (isPast30Minutes(otp.getDateGeneration()) < 15) {
                 if (otp.getAttempts() < 3) {
-                    String isOtpValid = otpCompareService.verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
+                    Boolean isOtpValid = otpCompareService.verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
 
                     ClientRequest client = ClientRequest.builder()
                             .email(otpEmailRequest.getEmail())
                             .build();
 
-
                     Integer idClient = userClient.saveEmail(client);
                     otp.incrementAttempt();
-
                     otp.setIdClient(idClient);
-
                     otpRepository.save(otp);
-                    responseMap.put(isOtpValid, idClient);
-                    return ResponseEntity.ok(responseMap);
-                } else {
-                    responseMap.put("error2345", "OTP expired");
-                    return ResponseEntity.ok(responseMap);
+
+                    if (isOtpValid) {
+                        return StatusOTP.VALIDE.getLabel();
+                    }else {
+                        return StatusOTP.INVALID.getLabel();
+                    }
+                } else{
+                    return StatusOTP.EXPIRED.getLabel();
                 }
             } else {
-                responseMap.put("error2345", "otp time out");
-                return ResponseEntity.ok(responseMap);
+              return StatusOTP.TIMEOUT.getLabel();
             }
     }
 }

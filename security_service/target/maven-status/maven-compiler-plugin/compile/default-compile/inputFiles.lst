@@ -1,0 +1,13 @@
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/repository/CounterRepository.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/service/OtpGenerateService.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/repository/HistoryRepository.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/controller/OtpEmailController.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/controller/OtpPhoneController.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/service/OtpCompareService.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/model/Counter.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/repository/OtpRepository.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/SecurityServiceApplication.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/model/Otp.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/model/History.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/dto/OtpEmailRequest.java
+/Users/ayman/file/ad-microservices/security_service/src/main/java/com/eai/securityservice/dto/OtpPhoneRequest.java

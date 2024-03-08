@@ -35,7 +35,6 @@ public class EmailSenderService {
 
             helper.setSubject(subject);
 
-
             helper.setText(thymeleafService.createContent(cheminTemplate, variables), true);
 
             mailSender.send(message);

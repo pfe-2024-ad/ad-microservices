@@ -1,0 +1,36 @@
+server:
+  port: 7777
+
+spring:
+  application:
+    name: apigateway
+  cloud:
+    gateway:
+      discovery:
+        enabled: true
+      routes:
+        - id: client-service
+          uri: lb://CLIENT-SERVICE
+          predicates:
+            - Path=/agd/client-service/**
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/agd/notification-service/**
+        - id: security-service
+          uri: lb://SECURITY-SERVICE
+          predicates:
+            - Path=/agd/security-service/**
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+
+

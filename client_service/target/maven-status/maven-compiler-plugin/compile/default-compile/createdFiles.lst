@@ -1,0 +1,8 @@
+com/eai/client_service/model/Client.class
+com/eai/client_service/model/Client$ClientBuilder.class
+com/eai/client_service/repository/ClientRepository.class
+com/eai/client_service/controller/ClientController.class
+com/eai/client_service/service/ClientService.class
+com/eai/client_service/outils/enums/ClientStatus.class
+com/eai/client_service/outils/enums/AddPhoneStatus.class
+com/eai/client_service/ClientServiceApplication.class

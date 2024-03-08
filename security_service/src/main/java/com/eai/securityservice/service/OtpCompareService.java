@@ -23,14 +23,10 @@ public class OtpCompareService {
 
 
 
-    public String verifyOtp(String input, Integer counter){
-        boolean isvalid = compareOtp(input, counter);
+    public Boolean verifyOtp(String input, Integer counter){
+        boolean isvalid;
+       return isvalid = compareOtp(input, counter);
 
-            if (isvalid) {
-                    return "The OTP is valid.";
-            } else {
-                return "The OTP not valid." ;
-            }
 
     }
 

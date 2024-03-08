@@ -28,18 +28,13 @@ public class ClientService {
 
     public String addPhone(Integer idClient, String indicatiTel, String numTel){
 
-        Optional<Client> clientOptional = clientRepository.findById(idClient);
-        if(clientOptional.isPresent()){
-            Client client = clientOptional.get(); // Extracting the Client object from Optional
+        Client client = clientRepository.findByID(idClient);
             client.setClientStatus(ClientStatus.PROSPECT);
             client.setIndicatifTel(indicatiTel);
             client.setNumTel(numTel);
             clientRepository.save(client);
             return AddPhoneStatus.SUCCESSFUL.getLabel();
-        }
-        else{
-            return AddPhoneStatus.ERROR.getLabel();
-        }
+
     }
 
 

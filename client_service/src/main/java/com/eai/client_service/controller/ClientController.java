@@ -14,13 +14,11 @@ public class ClientController {
 
    @PostMapping("email")
    public Integer saveEmail(@RequestBody ClientRequest request){
-
        return clientService.saveClient(request.getEmail());
    }
 
    @PostMapping("phone")
     public String addPhone(@RequestBody ClientRequest request){
-
        return clientService.addPhone(request.getIdClient(), request.getIndicatifTel(), request.getNumTel());
    }
 

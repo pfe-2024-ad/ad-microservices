@@ -1,0 +1,10 @@
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/service/EmailSenderService.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/config/TwilioConfiguration.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/controller/SmsSenderController.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/config/TwilioInitializer.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/NotificationServiceApplication.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/outils/enums/EmailStatus.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/controller/EmailSenderController.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/service/ThymeleafService.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/outils/enums/SmsStatus.java
+/Users/ayman/file/ad-microservices/notification_service/src/main/java/com/eai/notification_service/service/SmsSenderService.java
