@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,8 +12,5 @@ import java.util.Map;
 public class EmailSender {
     private String email;
     private String codeOtpEmail;
-    private String subject;
-    private Map<String, Object> variables;
-    private String cheminTemplate;
 
 }

@@ -13,8 +13,8 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class SmsSender {
-    private String indicatifTel;
-    private String numTel;
+    private String keyPhone;
+    private String numPhone;
     private String codeOtpSms;
 
 }
