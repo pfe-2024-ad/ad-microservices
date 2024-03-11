@@ -1,6 +1,7 @@
 package com.eai.securityservice.controller;
 
 import com.eai.openfeignservice.notification.NotificationClient;
+import com.eai.openfeignservice.notification.SmsSender;
 import com.eai.openfeignservice.user.UserClient;
 import com.eai.securityservice.dto.OtpPhoneRequest;
 import com.eai.securityservice.model.Counter;
@@ -34,24 +35,26 @@ public class OtpPhoneController {
     private final Counter counter;
     private final CounterRepository counterRepository;
     private final NotificationClient notificationClient;
-    private final UserClient userClient;
 
     @PostMapping("/generate")
     public String generatePhoneOtp(@RequestBody OtpPhoneRequest otpPhoneRequest) {
         String generatedOtp = otpGenerateService.generateOtp(counter.getCounter());
         History history = historyRepository.findTopByKeyPhoneAndNumPhoneOrderByDateGenerationDesc(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone());
         Otp otp = otpRepository.findByIdClient(otpPhoneRequest.getIdClient());
-
+        SmsSender smsSender = SmsSender.builder()
+                .keyPhone(otpPhoneRequest.getKeyPhone())
+                .numPhone(otpPhoneRequest.getNumPhone())
+                .codeOtpSms(generatedOtp)
+                .build();
         String isSent;
             if (history == null) {
                 history = new History(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone(), counter.getCounter(), new Date());
-
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
                 otp.setAttempts(0);
                 otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
                 otp.setNumPhone(otpPhoneRequest.getNumPhone());
-//                notificationClient.sendSms(otpEmailRequest.getEmail(), generatedOtp);
+                notificationClient.sendOtpSms(smsSender);
                 isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
             } else{
@@ -64,7 +67,7 @@ public class OtpPhoneController {
                     otp.setNumPhone(otpPhoneRequest.getNumPhone());
                     otp.setDateGeneration(new Date());
                     otp.setAttempts(0);
-//                    notificationClient.sendSms(otpEmailRequest.getEmail(), generatedOtp);
+                    notificationClient.sendOtpSms(smsSender);
                     isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
 
@@ -76,7 +79,7 @@ public class OtpPhoneController {
                     otp.setAttempts(0);
                     otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
                     otp.setNumPhone(otpPhoneRequest.getNumPhone());
-//                    notificationClient.sendSms(otpEmailRequest.getEmail(), generatedOtp);
+                    notificationClient.sendOtpSms(smsSender);
                     isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
                 }
                 else {

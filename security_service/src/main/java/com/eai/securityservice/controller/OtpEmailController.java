@@ -1,5 +1,6 @@
 package com.eai.securityservice.controller;
 
+import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.UserClient;
@@ -38,19 +39,22 @@ public class OtpEmailController {
     @PostMapping("/generate")
     public String generateEmailOtp(@RequestBody OtpEmailRequest otpEmailRequest ) {
 
-      ClientRequest client = ClientRequest.builder()
-                .email(otpEmailRequest.getEmail())
-                .build();
-      if(!userClient.isClientExist(client)) {
+//      ClientRequest client = ClientRequest.builder()
+//                .email(otpEmailRequest.getEmail())
+//                .build();
+//      if(!userClient.isClientExist(client)) {
           String generatedOtp = otpGenerateService.generateOtp(counter.getCounter());
           Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
           History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
           String isSent;
-
+          EmailSender emailSender = EmailSender.builder()
+                  .email(otpEmailRequest.getEmail())
+                  .codeOtpEmail(generatedOtp)
+                  .build();
           if (otp == null) {
               history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
               otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-              notificationClient.sendEmail(otpEmailRequest.getEmail(), generatedOtp);
+              notificationClient.sendOtpEmail(emailSender);
               isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
           } else {
               if (history.getNumGeneration() < 5) {
@@ -60,7 +64,7 @@ public class OtpEmailController {
                   otp.setCounter(counter.getCounter());
                   otp.setDateGeneration(new Date());
                   otp.setAttempts(0);
-                  notificationClient.sendEmail(otpEmailRequest.getEmail(), generatedOtp);
+                  notificationClient.sendOtpEmail(emailSender);
                   isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
               } else if (history.getNumGeneration() == 5 && isPast30Minutes(history.getDateGeneration()) > 1) {
@@ -68,7 +72,7 @@ public class OtpEmailController {
                   otp.setCounter(counter.getCounter());
                   otp.setDateGeneration(new Date());
                   otp.setAttempts(0);
-                  notificationClient.sendEmail(otpEmailRequest.getEmail(), generatedOtp);
+                  notificationClient.sendOtpEmail(emailSender);
                   isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
 
@@ -82,9 +86,9 @@ public class OtpEmailController {
         counter.incrementCounter();
         counterRepository.save(counter);
         return isSent;
-    }else{
-        return OtpGenerationStatusEnum.EMAIL_EXIST_ERROR.getLabel();
-        }
+//    }else{
+//        return OtpGenerationStatusEnum.EMAIL_EXIST_ERROR.getLabel();
+//        }
     }
 
     private long isPast30Minutes(Date date) {
