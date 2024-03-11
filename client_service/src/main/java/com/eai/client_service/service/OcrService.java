@@ -1,7 +1,7 @@
 package com.eai.client_service.service;
 
-import com.eai.client_service.dto.mocks.ocr.ClientResponseDto;
 import com.eai.client_service.dto.InfoClientRequest;
+import com.eai.client_service.dto.mocks.ocr.ClientResponseOcrDto;
 import com.eai.client_service.dto.mocks.ocr.trustface.FluxEntreeTrustFaceDto;
 import com.eai.client_service.dto.mocks.ocr.trustface.FluxSortieTrustFaceDto;
 import com.eai.client_service.dto.mocks.ocr.trustid.FluxEntreeTrustIdDto;
@@ -27,10 +27,14 @@ import java.util.List;
 public class OcrService {
 
     private final ClientService clientService;
-    public ClientResponseDto getInfosCIN(MultipartFile[] files) {
+    public ClientResponseOcrDto getInfosCIN(MultipartFile file1, MultipartFile file2, MultipartFile file3, Integer id) {
+        log.info("here");
         String base64_RECTO = "";
         String base64_VERSO = "";
         String base64_SELFIE = "";
+
+        MultipartFile[] files = new MultipartFile[]{file1, file2, file3};
+
 
         for (int i = 0; i < files.length; i++) {
             try {
@@ -75,7 +79,7 @@ public class OcrService {
         //log.info(responseEntityFace.getBody().getResult().getResults().getFirst());
 
         InfoClientRequest infoClientRequest = InfoClientRequest.builder()
-                .idClient(5)
+                .idClient(id)
                 .nom(responseEntityId.getBody().getDocumentDto().getNom())
                 .prenom(responseEntityId.getBody().getDocumentDto().getPrenom())
                 .dateNaissance(responseEntityId.getBody().getDocumentDto().getDateNaissance())
