@@ -1,17 +1,21 @@
 package com.eai.client_service.service;
 
+import com.eai.client_service.dto.mocks.ocr.ClientResponseDto;
 import com.eai.client_service.model.Pack;
 import com.eai.client_service.dto.InfoClientRequest;
 import com.eai.client_service.outils.enums.AddPhoneStatus;
 import com.eai.client_service.outils.enums.ClientStatus;
 import com.eai.client_service.model.Client;
+import com.eai.client_service.outils.enums.ClientStep;
 import com.eai.client_service.outils.enums.SaveInfoClientStatus;
 import com.eai.client_service.repository.ClientRepository;
 import com.eai.client_service.repository.PackRepository;
 import com.eai.openfeignservice.user.ClientRequest;
+import com.eai.openfeignservice.user.ClientResponseForRelanche;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +30,8 @@ public class ClientService {
 
     public Integer saveClient(ClientRequest clientRequest){
         ClientStatus status = ClientStatus.PRE_PROSPECT;
-        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil());
+        ClientStep clientStep = ClientStep.EMAIL_STEP;
+        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil(), clientStep);
         Pack pack = new Pack(clientRequest.getNomPack(), clientRequest.getTypePack(), clientRequest.getOffres(), clientRequest.getNomCarte(),
                 clientRequest.getSendCarte(), clientRequest.getServices());
 
@@ -46,6 +51,7 @@ public class ClientService {
         if(clientOptional.isPresent()){
             Client client = clientOptional.get(); // Extracting the Client object from Optional
             client.setClientStatus(ClientStatus.PROSPECT);
+            client.setClientStep(ClientStep.PHONE_STEP);
             client.setIndicatifTel(indicatiTel);
             client.setNumTel(numTel);
             clientRepository.save(client);
@@ -60,6 +66,7 @@ public class ClientService {
         Optional<Client> clientOptional = clientRepository.findById(infoClientRequest.getIdClient());
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
+            client.setClientStep(ClientStep.OCR_STEP);
             client.setNom(infoClientRequest.getNom());
             client.setPrenom(infoClientRequest.getPrenom());
             client.setDateNaissance(infoClientRequest.getDateNaissance());
@@ -80,12 +87,30 @@ public class ClientService {
         Optional<Client> clientOptional = clientRepository.findById(infoClientRequest.getIdClient());
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
+            client.setClientStep(ClientStep.AGENCY_STEP);
             client.setVilleAgence(infoClientRequest.getVilleAgence());
             client.setAdresseAgence(infoClientRequest.getAdresseAgence());
             clientRepository.save(client);
             return SaveInfoClientStatus.SUCCESSFUL.getLabel();
         } else {
             return SaveInfoClientStatus.ERROR.getLabel();
+        }
+    }
+
+    public ClientResponseDto getClient(Integer id){
+        Optional<Client> clientOptional = clientRepository.findById(id);
+        if (clientOptional.isPresent()) {
+            Client client = clientOptional.get(); // Extracting the Client object from Optional
+            ClientResponseDto clientResponseDto = ClientResponseDto.builder()
+                    .nom(client.getNom())
+                    .prenom(client.getPrenom())
+                    .cin(client.getCin())
+                    .dateNaissance(client.getDateNaissance())
+                    .adresseResidence(client.getAdresseResidence())
+                    .build();
+            return clientResponseDto;
+        } else {
+            return null;
         }
     }
 
@@ -102,5 +127,20 @@ public class ClientService {
 
         return client != null;
 
+    }
+
+    public List<ClientResponseForRelanche> getClientForRelanche(){
+        List<ClientResponseForRelanche> clientResponse = new ArrayList<>();
+        List<Client> allClient = clientRepository.findAll();
+        for(Client client:allClient){
+           if(client.getClientStep() != ClientStep.RDV_STEP){
+               ClientResponseForRelanche clientResponseForRelanche = ClientResponseForRelanche.builder()
+                               .idClient(client.getId())
+                               .email(client.getEmail())
+                               .build();
+               clientResponse.add(clientResponseForRelanche);
+           }
+       }
+        return clientResponse;
     }
 }
