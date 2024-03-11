@@ -47,7 +47,32 @@ public class OtpPhoneController {
                 .codeOtpSms(generatedOtp)
                 .build();
         String isSent;
-            if (history == null) {
+        if (history == null) {
+            history = new History(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone(), counter.getCounter(), new Date());
+            otp.setCounter(counter.getCounter());
+            otp.setDateGeneration(new Date());
+            otp.setAttempts(0);
+            otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
+            otp.setNumPhone(otpPhoneRequest.getNumPhone());
+            notificationClient.sendOtpSms(smsSender);
+            isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+
+        } else{
+            if (history.getNumGeneration() < 5) {
+                history.setCounter(counter.getCounter());
+                history.setDateGeneration(new Date());
+                history.incrementNumGeneration();
+                otp.setCounter(counter.getCounter());
+                otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
+                otp.setNumPhone(otpPhoneRequest.getNumPhone());
+                otp.setDateGeneration(new Date());
+                otp.setAttempts(0);
+                notificationClient.sendOtpSms(smsSender);
+                isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+
+
+
+            } else if (history.getNumGeneration() == 5 && isPast30Minutes(history.getDateGeneration()) > 30) {
                 history = new History(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone(), counter.getCounter(), new Date());
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
@@ -55,37 +80,12 @@ public class OtpPhoneController {
                 otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
                 otp.setNumPhone(otpPhoneRequest.getNumPhone());
                 notificationClient.sendOtpSms(smsSender);
-                isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
-
-            } else{
-                if (history.getNumGeneration() < 5) {
-                    history.setCounter(counter.getCounter());
-                    history.setDateGeneration(new Date());
-                    history.incrementNumGeneration();
-                    otp.setCounter(counter.getCounter());
-                    otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
-                    otp.setNumPhone(otpPhoneRequest.getNumPhone());
-                    otp.setDateGeneration(new Date());
-                    otp.setAttempts(0);
-                    notificationClient.sendOtpSms(smsSender);
-                    isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
-
-
-
-                } else if (history.getNumGeneration() == 5 && isPast30Minutes(history.getDateGeneration()) > 30) {
-                    history = new History(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone(), counter.getCounter(), new Date());
-                    otp.setCounter(counter.getCounter());
-                    otp.setDateGeneration(new Date());
-                    otp.setAttempts(0);
-                    otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
-                    otp.setNumPhone(otpPhoneRequest.getNumPhone());
-                    notificationClient.sendOtpSms(smsSender);
-                    isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
-                }
-                else {
-                    isSent = OtpGenerationStatusEnum.EMAIL_EXIST_ERROR.getLabel();
-                }
+                isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
             }
+            else {
+                isSent = OtpGenerationStatusEnum.EMAIL_EXIST_ERROR.getLabel();
+            }
+        }
         otpRepository.save(otp);
         historyRepository.save(history);
         counter.incrementCounter();

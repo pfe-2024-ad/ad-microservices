@@ -43,43 +43,43 @@ public class OtpEmailController {
 //                .email(otpEmailRequest.getEmail())
 //                .build();
 //      if(!userClient.isClientExist(client)) {
-          String generatedOtp = otpGenerateService.generateOtp(counter.getCounter());
-          Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
-          History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
-          String isSent;
-          EmailSender emailSender = EmailSender.builder()
-                  .email(otpEmailRequest.getEmail())
-                  .codeOtpEmail(generatedOtp)
-                  .build();
-          if (otp == null) {
-              history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-              otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-              notificationClient.sendOtpEmail(emailSender);
-              isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
-          } else {
-              if (history.getNumGeneration() < 5) {
-                  history.setCounter(counter.getCounter());
-                  history.setDateGeneration(new Date());
-                  history.incrementNumGeneration();
-                  otp.setCounter(counter.getCounter());
-                  otp.setDateGeneration(new Date());
-                  otp.setAttempts(0);
-                  notificationClient.sendOtpEmail(emailSender);
-                  isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+        String generatedOtp = otpGenerateService.generateOtp(counter.getCounter());
+        Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+        History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
+        String isSent;
+        EmailSender emailSender = EmailSender.builder()
+                .email(otpEmailRequest.getEmail())
+                .codeOtpEmail(generatedOtp)
+                .build();
+        if (otp == null) {
+            history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
+            otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
+            notificationClient.sendOtpEmail(emailSender);
+            isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+        } else {
+            if (history.getNumGeneration() < 5) {
+                history.setCounter(counter.getCounter());
+                history.setDateGeneration(new Date());
+                history.incrementNumGeneration();
+                otp.setCounter(counter.getCounter());
+                otp.setDateGeneration(new Date());
+                otp.setAttempts(0);
+                notificationClient.sendOtpEmail(emailSender);
+                isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
-              } else if (history.getNumGeneration() == 5 && isPast30Minutes(history.getDateGeneration()) > 1) {
-                  history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-                  otp.setCounter(counter.getCounter());
-                  otp.setDateGeneration(new Date());
-                  otp.setAttempts(0);
-                  notificationClient.sendOtpEmail(emailSender);
-                  isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+            } else if (history.getNumGeneration() == 5 && isPast30Minutes(history.getDateGeneration()) > 1) {
+                history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
+                otp.setCounter(counter.getCounter());
+                otp.setDateGeneration(new Date());
+                otp.setAttempts(0);
+                notificationClient.sendOtpEmail(emailSender);
+                isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
 
 
-              } else {
-                  isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
-              }
-          }
+            } else {
+                isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
+            }
+        }
 
         otpRepository.save(otp);
         historyRepository.save(history);
@@ -97,32 +97,32 @@ public class OtpEmailController {
     }
     @PostMapping("/compare")
     public String compareOtp(@RequestBody OtpEmailRequest otpEmailRequest) {
-            // Use the counter value to verify the OTP
+        // Use the counter value to verify the OTP
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
         if (isPast30Minutes(otp.getDateGeneration()) < 15) {
-                if (otp.getAttempts() < 3) {
-                    Boolean isOtpValid = otpCompareService.verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
+            if (otp.getAttempts() < 3) {
+                Boolean isOtpValid = otpCompareService.verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
 
-                    ClientRequest client = ClientRequest.builder()
-                            .email(otpEmailRequest.getEmail())
-                            .build();
+                ClientRequest client = ClientRequest.builder()
+                        .email(otpEmailRequest.getEmail())
+                        .build();
 
-                    Integer idClient = userClient.saveEmail(client);
-                    otp.incrementAttempt();
-                    otp.setIdClient(idClient);
-                    otpRepository.save(otp);
+                Integer idClient = userClient.saveEmail(client);
+                otp.incrementAttempt();
+                otp.setIdClient(idClient);
+                otpRepository.save(otp);
 
-                    if (isOtpValid) {
-                        return StatusOTP.VALIDE.getLabel();
-                    }else {
-                        return StatusOTP.INVALID.getLabel();
-                    }
-                } else{
-                    return StatusOTP.EXPIRED.getLabel();
+                if (isOtpValid) {
+                    return StatusOTP.VALIDE.getLabel();
+                }else {
+                    return StatusOTP.INVALID.getLabel();
                 }
-            } else {
-              return StatusOTP.TIMEOUT.getLabel();
+            } else{
+                return StatusOTP.EXPIRED.getLabel();
             }
+        } else {
+            return StatusOTP.TIMEOUT.getLabel();
+        }
     }
 }
 
