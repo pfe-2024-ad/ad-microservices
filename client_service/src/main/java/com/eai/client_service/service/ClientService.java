@@ -36,6 +36,7 @@ public class ClientService {
         ClientStatus status = ClientStatus.PRE_PROSPECT;
         ClientStep clientStep = ClientStep.EMAIL_STEP;
         Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil(), clientStep);
+
         Pack pack = new Pack(clientRequest.getNomPack(), clientRequest.getTypePack(), clientRequest.getOffres(), clientRequest.getNomCarte(),
                 clientRequest.getSendCarte(), clientRequest.getServices());
 
@@ -76,7 +77,9 @@ public class ClientService {
         Optional<Client> clientOptional = clientRepository.findById(infoClientRequest.getIdClient());
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
+          
             client.setClientStep(ClientStep.OCR_STEP);
+
             client.setNom(infoClientRequest.getNom());
             client.setPrenom(infoClientRequest.getPrenom());
             client.setDateNaissance(infoClientRequest.getDateNaissance());
@@ -167,5 +170,6 @@ public class ClientService {
         }
         return clientResponse;
     }
+
 
 }
