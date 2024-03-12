@@ -3,6 +3,7 @@ package com.eai.client_service.model;
 import com.eai.client_service.outils.enums.ClientStatus;
 import javax.persistence.*;
 
+import com.eai.client_service.outils.enums.ClientStep;
 import com.eai.openfeignservice.user.outils.enums.ClientProfil;
 import lombok.*;
 
@@ -25,6 +26,10 @@ public class Client {
 
     @Column(name="email")
     private String email;
+
+    @Column(name="client_step")
+    @Enumerated(EnumType.STRING)
+    private ClientStep clientStep;
 
     @Column(name="profil")
     @Enumerated(EnumType.STRING)
@@ -76,10 +81,11 @@ public class Client {
 
 
 
-    public Client(String email, ClientStatus clientStatus, ClientProfil profil) {
+    public Client(String email, ClientStatus clientStatus, ClientProfil profil, ClientStep clientStep) {
         this.email = email;
         this.clientStatus = clientStatus;
         this.profil= profil;
+        this.clientStep = clientStep;
     }
 
 }
