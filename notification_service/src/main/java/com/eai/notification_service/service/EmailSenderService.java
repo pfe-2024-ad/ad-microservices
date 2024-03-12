@@ -1,6 +1,7 @@
 package com.eai.notification_service.service;
 
 import com.eai.notification_service.outils.enums.EmailStatus;
+import com.eai.notification_service.outils.enums.SmsStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class EmailSenderService {
     private ThymeleafService thymeleafService;
 
 
-    public void sendOtpEmail(String toEmail, String subject, Map<String, Object> variables, String templatePath){
+    public String sendOtpEmail(String toEmail, String subject, Map<String, Object> variables, String templatePath){
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(
@@ -39,9 +40,13 @@ public class EmailSenderService {
             helper.setText(thymeleafService.createContent(templatePath, variables), true);
 
             mailSender.send(message);
+            return SmsStatus.SUCCESSFUL.getLabel();
+
 
         }catch (Exception e){
             e.printStackTrace();
+            return SmsStatus.ERROR.getLabel();
+
         }
     }
 }

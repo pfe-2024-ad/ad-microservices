@@ -17,7 +17,7 @@ public class SmsSenderService {
     private final TwilioConfiguration twilioConfiguration;
 
 
-    public void sendOtpSms(String keyPhone, String numPhone, String message) {
+    public String sendOtpSms(String keyPhone, String numPhone, String message) {
         try {
             String phoneNumber = keyPhone + numPhone;
             PhoneNumber to = new PhoneNumber(phoneNumber);
@@ -26,9 +26,12 @@ public class SmsSenderService {
 
             MessageCreator creator = Message.creator(to, from, message);
             creator.create();
+            return SmsStatus.SUCCESSFUL.getLabel();
 
         } catch (Exception e ){
             e.printStackTrace();
+            return SmsStatus.ERROR.getLabel();
+
         }
 
     }

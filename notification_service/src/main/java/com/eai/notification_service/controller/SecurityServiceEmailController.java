@@ -10,19 +10,18 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class EmailSenderController {
+public class SecurityServiceEmailController {
 
     private final EmailSenderService emailSenderService;
 
    @PostMapping("/send-email")
-   public void sendOtpEmail(@RequestBody EmailSender request) {
+   public String sendOtpEmail(@RequestBody EmailSender request) {
        String subject = "Agence Directe – Ouverture de compte en ligne";
        String templatePath = "otpService/email/send-otp-email-template.html";
-
        Map<String, Object> variables = new HashMap<>();
        variables.put("codeOtpEmail", request.getCodeOtpEmail());
        variables.put("subject", subject);
 
-       emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
+       return emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
    }
 }
