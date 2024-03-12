@@ -7,7 +7,6 @@ import com.eai.client_service.dto.mocks.ocr.trustface.FluxSortieTrustFaceDto;
 import com.eai.client_service.dto.mocks.ocr.trustid.FluxEntreeTrustIdDto;
 import com.eai.client_service.dto.mocks.ocr.trustid.FluxSortieTrustIdDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,13 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
+
 @RequiredArgsConstructor
 public class OcrService {
 
     private final ClientService clientService;
-    public ClientResponseOcrDto getInfosCIN(MultipartFile file1, MultipartFile file2, MultipartFile file3, Integer id) {
-        log.info("here");
+    public ClientResponseOcrDto getCinInfos(MultipartFile file1, MultipartFile file2, MultipartFile file3, Integer id) {
         String base64_RECTO = "";
         String base64_VERSO = "";
         String base64_SELFIE = "";
@@ -38,7 +36,6 @@ public class OcrService {
 
         for (int i = 0; i < files.length; i++) {
             try {
-                log.info("Processing image " + (i + 1));
                 byte[] bytes = files[i].getBytes();
                 String encodedFile = Base64.encodeBase64String(bytes);
                 switch (i) {
@@ -67,16 +64,12 @@ public class OcrService {
         FluxEntreeTrustIdDto fluxEntreeTrustIdDto = buildFluxEntreeTrustIdDto(base64_RECTO, base64_VERSO);
         HttpEntity<FluxEntreeTrustIdDto> requestEntityId = new HttpEntity<>(fluxEntreeTrustIdDto, headers);
         ResponseEntity<FluxSortieTrustIdDto> responseEntityId = restTemplate.postForEntity("http://localhost:7777/agd/client-service/mocks/ocr/trustid", requestEntityId, FluxSortieTrustIdDto.class);
-        //Nous utilisons la méthode postForEntity de RestTemplate pour envoyer la requête HTTP POST avec l'URL cible, l'objet de la requête et le type de réponse attendu.
-        //log.info(responseEntityId.getBody().getDocumentDto().getNom());
+
 
         FluxEntreeTrustFaceDto fluxEntreeTrustFaceDto = buildFluxEntreeTrustFaceDto(
                 responseEntityId.getBody().getDocumentDto().getImagePortrait(), base64_SELFIE);
         HttpEntity<FluxEntreeTrustFaceDto> requestEntityFace = new HttpEntity<>(fluxEntreeTrustFaceDto, headers);
         ResponseEntity<FluxSortieTrustFaceDto> responseEntityFace = restTemplate.postForEntity("http://localhost:7777/agd/client-service/mocks/ocr/trustface", requestEntityFace, FluxSortieTrustFaceDto.class);
-
-
-        //log.info(responseEntityFace.getBody().getResult().getResults().getFirst());
 
         InfoClientRequest infoClientRequest = InfoClientRequest.builder()
                 .idClient(id)
@@ -95,10 +88,8 @@ public class OcrService {
     private FluxEntreeTrustIdDto buildFluxEntreeTrustIdDto(String base64_recto, String base64_verso) {
         FluxEntreeTrustIdDto fluxEntreeTrustIdDto = new FluxEntreeTrustIdDto();
 
-        // Mocking data for FluxEntreeTrustIdDto
         fluxEntreeTrustIdDto.setCodeClient("12345"); // Setting codeClient
 
-        // Adding Documents to the list
         List<FluxEntreeTrustIdDto.Document> documents = new ArrayList<>();
 
 
@@ -120,7 +111,6 @@ public class OcrService {
         document2.setReferenceDoc("");
         documents.add(document2);
 
-        // Setting documents list
         fluxEntreeTrustIdDto.setDocument(documents);
 
         return fluxEntreeTrustIdDto;
@@ -130,7 +120,6 @@ public class OcrService {
     private FluxEntreeTrustFaceDto buildFluxEntreeTrustFaceDto(String image_portrait, String base64_selfie) {
         FluxEntreeTrustFaceDto fluxEntreeTrustFaceDto = new FluxEntreeTrustFaceDto();
 
-        // Mocking data for FluxEntreeTrustIdDto
         fluxEntreeTrustFaceDto.setCodeClient("12345"); // Setting codeClient
         fluxEntreeTrustFaceDto.setDocumentFace(image_portrait);
         fluxEntreeTrustFaceDto.setSelfie(base64_selfie);

@@ -23,12 +23,11 @@ public class TrustFaceService {
         fluxSortieTrustFaceDto.setResult(result);
 
         FluxSortieTrustFaceDto.Resultat.ResultatComparaison resultatComparaison = new FluxSortieTrustFaceDto.Resultat.ResultatComparaison();
-        resultatComparaison.setFirst("dd");
-        resultatComparaison.setFirstFaceIndex("dd");
-        resultatComparaison.setFirstFaceIndex("ddd");
-        resultatComparaison.setScore("Dd");
-        resultatComparaison.setSecondFaceIndex("d");
-        resultatComparaison.setSecondIndex("dd");
+        resultatComparaison.setFirst("fakeFirst");
+        resultatComparaison.setFirstFaceIndex("fakeFirstFace");
+        resultatComparaison.setScore("fakeScore");
+        resultatComparaison.setSecondFaceIndex("fakeSecondFace");
+        resultatComparaison.setSecondIndex("fakeSecondIndex");
         resultatComparaison.setSimilarity("100%");
 
         result.setResults(resultatComparaison);
