@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @FeignClient(name = "client-service", path = "/agd/client-service")
 public interface UserClient {
-    @PostMapping("email")
-    Integer saveEmail(@RequestBody ClientRequest request);
+    @PostMapping("create-client")
+    Integer saveClient(@RequestBody ClientRequest request);
 
-    @PostMapping("phone")
+    @PostMapping("add-client-phone")
     String addPhone(@RequestBody ClientRequest request);
 
 
-    @PostMapping("check-client")
+    @PostMapping("check-client-if-exist")
     Boolean isClientExist(@RequestBody ClientRequest request);
 
 }

@@ -1,5 +1,6 @@
 package com.eai.client_service.service;
 
+import com.eai.client_service.dto.mocks.ocr.ClientResponseOcrDto;
 import com.eai.client_service.model.Pack;
 import com.eai.client_service.dto.InfoClientRequest;
 import com.eai.client_service.outils.enums.AddPhoneStatus;
@@ -24,10 +25,18 @@ public class ClientService {
     private final PackRepository packRepository;
 
 
-    public Integer saveClient(ClientRequest request){
+    public Integer saveClient(ClientRequest clientRequest){
         ClientStatus status = ClientStatus.PRE_PROSPECT;
-        Client client = new Client(request.getEmail(), status, request.getProfil());
+        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil());
+        Pack pack = new Pack(clientRequest.getNomPack(), clientRequest.getTypePack(), clientRequest.getOffres(), clientRequest.getNomCarte(),
+                clientRequest.getSendCarte(), clientRequest.getServices());
+
+        // Associez d'abord le pack au client
+        pack.setClient(client);
+
         clientRepository.save(client);
+        packRepository.save(pack);
+
         return client.getId();
     }
 
@@ -48,19 +57,19 @@ public class ClientService {
         }
     }
 
-    public String updateInfoClient(InfoClientRequest request) {
-        Optional<Client> clientOptional = clientRepository.findById(request.getIdClient());
+    public String updateInfoClient(InfoClientRequest infoClientRequest) {
+        Optional<Client> clientOptional = clientRepository.findById(infoClientRequest.getIdClient());
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
-            client.setNom(request.getNom());
-            client.setPrenom(request.getPrenom());
-            client.setDateNaissance(request.getDateNaissance());
-            client.setCin(request.getCin());
-            client.setAdresseResidence(request.getAdresseResidence());
-            client.setVille(request.getVille());
-            client.setProfession(request.getProfession());
-            client.setCodePostal(request.getCodePostal());
-            client.setMobiliteBancaire(request.getMobiliteBancaire());
+            client.setNom(infoClientRequest.getNom());
+            client.setPrenom(infoClientRequest.getPrenom());
+            client.setDateNaissance(infoClientRequest.getDateNaissance());
+            client.setCin(infoClientRequest.getCin());
+            client.setAdresseResidence(infoClientRequest.getAdresseResidence());
+            client.setVille(infoClientRequest.getVille());
+            client.setProfession(infoClientRequest.getProfession());
+            client.setCodePostal(infoClientRequest.getCodePostal());
+            client.setMobiliteBancaire(infoClientRequest.getMobiliteBancaire());
             clientRepository.save(client);
             return SaveInfoClientStatus.SUCCESSFUL.getLabel();
         } else {
@@ -81,6 +90,23 @@ public class ClientService {
         }
     }
 
+    public ClientResponseOcrDto getClient(Integer id){
+        Optional<Client> clientOptional = clientRepository.findById(id);
+        if (clientOptional.isPresent()) {
+            Client client = clientOptional.get(); // Extracting the Client object from Optional
+            ClientResponseOcrDto clientResponseOcrDto = ClientResponseOcrDto.builder()
+                    .nom(client.getNom())
+                    .prenom(client.getPrenom())
+                    .cin(client.getCin())
+                    .dateNaissance(client.getDateNaissance())
+                    .adresseResidence(client.getAdresseResidence())
+                    .build();
+            return clientResponseOcrDto;
+        } else {
+            return null;
+        }
+    }
+
 
     public Boolean isClientExist(String email){
 
@@ -95,4 +121,5 @@ public class ClientService {
         return client != null;
 
     }
+
 }

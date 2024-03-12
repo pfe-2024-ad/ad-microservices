@@ -20,6 +20,9 @@ public class Client {
     @Column(name="id")
     private Integer id;
 
+    @OneToOne(mappedBy = "client")
+    private Pack pack;
+
     @Column(name="email")
     private String email;
 
