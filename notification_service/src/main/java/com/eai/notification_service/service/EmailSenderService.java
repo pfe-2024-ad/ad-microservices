@@ -23,7 +23,7 @@ public class EmailSenderService {
     private ThymeleafService thymeleafService;
 
 
-    public String sendEmail(String toEmail, String subject, Map<String, Object> variables, String cheminTemplate){
+    public void sendOtpEmail(String toEmail, String subject, Map<String, Object> variables, String templatePath){
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(
@@ -36,14 +36,12 @@ public class EmailSenderService {
             helper.setSubject(subject);
 
 
-            helper.setText(thymeleafService.createContent(cheminTemplate, variables), true);
+            helper.setText(thymeleafService.createContent(templatePath, variables), true);
 
             mailSender.send(message);
 
-            return EmailStatus.SUCCESSFUL.getLabel();
         }catch (Exception e){
             e.printStackTrace();
-            return EmailStatus.ERROR.getLabel();
         }
     }
 }

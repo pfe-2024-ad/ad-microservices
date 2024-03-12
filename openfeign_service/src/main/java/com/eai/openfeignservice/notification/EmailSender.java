@@ -14,8 +14,5 @@ import java.util.Map;
 public class EmailSender {
     private String email;
     private String codeOtpEmail;
-    private String subject;
-    private Map<String, Object> variables;
-    private String cheminTemplate;
 
 }

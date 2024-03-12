@@ -13,9 +13,9 @@ public class SmsSenderController {
     private final SmsSenderService smsSenderService;
 
     @PostMapping("/send-sms")
-    public String sendSms(@RequestBody SmsSender request) {
-        return smsSenderService.sendSms(request.getIndicatifTel(), request.getNumTel(), request.getCodeOtpSms());
-
+    public void sendOtpSms(@RequestBody SmsSender request) {
+        String message = "Agence Directe. Ouverture de compte en ligne Code de confirmation " + request.getCodeOtpSms() + " valable pour une durée de: 15 minutes";
+        smsSenderService.sendOtpSms(request.getKeyPhone(), request.getNumPhone(), message);
     }
 
 }

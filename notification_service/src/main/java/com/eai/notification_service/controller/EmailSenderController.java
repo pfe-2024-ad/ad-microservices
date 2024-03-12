@@ -5,6 +5,9 @@ import com.eai.openfeignservice.notification.EmailSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 public class EmailSenderController {
@@ -12,8 +15,14 @@ public class EmailSenderController {
     private final EmailSenderService emailSenderService;
 
    @PostMapping("/send-email")
-   public String sendEmail(@RequestBody EmailSender request) {
-       return emailSenderService.sendEmail(request.getEmail(), request.getSubject(), request.getVariables(), request.getCheminTemplate());
+   public void sendOtpEmail(@RequestBody EmailSender request) {
+       String subject = "Agence Directe – Ouverture de compte en ligne";
+       String templatePath = "otpService/email/send-otp-email-template.html";
 
+       Map<String, Object> variables = new HashMap<>();
+       variables.put("codeOtpEmail", request.getCodeOtpEmail());
+       variables.put("subject", subject);
+
+       emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
    }
 }
