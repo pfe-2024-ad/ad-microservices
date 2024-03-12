@@ -1,4 +1,5 @@
 package com.eai.securityservice.controller;
+import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.securityservice.service.CompareOtpEmail;
 import com.eai.securityservice.service.GenerateOtpEmail;
 import com.eai.securityservice.dto.OtpEmailRequest;
@@ -22,7 +23,7 @@ public class OtpEmailController {
 
 
     @PostMapping("/compare")
-    public String compareOtp(@RequestBody OtpEmailRequest otpEmailRequest) {
+    public String compareOtp(@RequestBody ClientRequest otpEmailRequest) {
         return compareOtpEmail.compareOtp(otpEmailRequest);
     }
 }

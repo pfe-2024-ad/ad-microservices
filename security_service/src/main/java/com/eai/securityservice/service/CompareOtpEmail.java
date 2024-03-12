@@ -22,18 +22,15 @@ public class CompareOtpEmail {
     private final UserClient userClient;
     private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
 
-    public String compareOtp(@RequestBody OtpEmailRequest otpEmailRequest) {
+    public String compareOtp(@RequestBody ClientRequest otpEmailRequest) {
 
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
         if (isPast30Minutes(otp.getDateGeneration()) < 15) {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
 
-                ClientRequest client = ClientRequest.builder()
-                        .email(otpEmailRequest.getEmail())
-                        .build();
 
-                Integer idClient = userClient.saveEmail(client);
+                Integer idClient = userClient.saveEmail(otpEmailRequest);
                 otp.incrementAttempt();
                 otp.setIdClient(idClient);
                 otpRepository.save(otp);
