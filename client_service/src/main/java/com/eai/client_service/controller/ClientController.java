@@ -13,32 +13,32 @@ public class ClientController {
 
    private final ClientService clientService;
 
-   @PostMapping("email")
-   public Integer saveEmail(@RequestBody ClientRequest clientRequest){
+   @PostMapping("create-client")
+   public Integer saveClient(@RequestBody ClientRequest clientRequest){
 
        return clientService.saveClient(clientRequest);
    }
 
-   @PostMapping("phone")
+   @PostMapping("add-client-phone")
     public String addPhone(@RequestBody ClientRequest clientRequest){
 
        return clientService.addPhone(clientRequest.getIdClient(), clientRequest.getIndicatifTel(), clientRequest.getNumTel());
    }
 
-    @PostMapping("update-info-client")
+    @PostMapping("add-client-information")
     public String updateInfoClient(@RequestBody InfoClientRequest infoClientRequest){
 
         return clientService.updateInfoClient(infoClientRequest);
     }
 
-    @PostMapping("agence")
+    @PostMapping("add-client-agency-infos")
     public String addAgence(@RequestBody InfoClientRequest infoClientRequest){
 
         return clientService.addAgence(infoClientRequest);
     }
 
 
-    @PostMapping("check-client")
+    @PostMapping("check-client-if-exist")
     public Boolean isClientExist(@RequestBody ClientRequest clientRequest){
        return clientService.isClientExist(clientRequest.getEmail());
     }

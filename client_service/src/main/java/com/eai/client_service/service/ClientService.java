@@ -24,10 +24,18 @@ public class ClientService {
     private final PackRepository packRepository;
 
 
-    public Integer saveClient(ClientRequest request){
+    public Integer saveClient(ClientRequest clientRequest){
         ClientStatus status = ClientStatus.PRE_PROSPECT;
-        Client client = new Client(request.getEmail(), status, request.getProfil());
+        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil());
+        Pack pack = new Pack(clientRequest.getNomPack(), clientRequest.getTypePack(), clientRequest.getOffres(), clientRequest.getNomCarte(),
+                clientRequest.getSendCarte(), clientRequest.getServices());
+
+        // Associez d'abord le pack au client
+        pack.setClient(client);
+
         clientRepository.save(client);
+        packRepository.save(pack);
+
         return client.getId();
     }
 
@@ -48,19 +56,19 @@ public class ClientService {
         }
     }
 
-    public String updateInfoClient(InfoClientRequest request) {
-        Optional<Client> clientOptional = clientRepository.findById(request.getIdClient());
+    public String updateInfoClient(InfoClientRequest infoClientRequest) {
+        Optional<Client> clientOptional = clientRepository.findById(infoClientRequest.getIdClient());
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
-            client.setNom(request.getNom());
-            client.setPrenom(request.getPrenom());
-            client.setDateNaissance(request.getDateNaissance());
-            client.setCin(request.getCin());
-            client.setAdresseResidence(request.getAdresseResidence());
-            client.setVille(request.getVille());
-            client.setProfession(request.getProfession());
-            client.setCodePostal(request.getCodePostal());
-            client.setMobiliteBancaire(request.getMobiliteBancaire());
+            client.setNom(infoClientRequest.getNom());
+            client.setPrenom(infoClientRequest.getPrenom());
+            client.setDateNaissance(infoClientRequest.getDateNaissance());
+            client.setCin(infoClientRequest.getCin());
+            client.setAdresseResidence(infoClientRequest.getAdresseResidence());
+            client.setVille(infoClientRequest.getVille());
+            client.setProfession(infoClientRequest.getProfession());
+            client.setCodePostal(infoClientRequest.getCodePostal());
+            client.setMobiliteBancaire(infoClientRequest.getMobiliteBancaire());
             clientRepository.save(client);
             return SaveInfoClientStatus.SUCCESSFUL.getLabel();
         } else {
