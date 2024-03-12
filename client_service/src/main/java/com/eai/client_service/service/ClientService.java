@@ -1,5 +1,6 @@
 package com.eai.client_service.service;
 
+import com.eai.client_service.dto.mocks.ocr.ClientResponseOcrDto;
 import com.eai.client_service.model.Pack;
 import com.eai.client_service.dto.InfoClientRequest;
 import com.eai.client_service.outils.enums.AddPhoneStatus;
@@ -89,6 +90,23 @@ public class ClientService {
         }
     }
 
+    public ClientResponseOcrDto getClient(Integer id){
+        Optional<Client> clientOptional = clientRepository.findById(id);
+        if (clientOptional.isPresent()) {
+            Client client = clientOptional.get(); // Extracting the Client object from Optional
+            ClientResponseOcrDto clientResponseOcrDto = ClientResponseOcrDto.builder()
+                    .nom(client.getNom())
+                    .prenom(client.getPrenom())
+                    .cin(client.getCin())
+                    .dateNaissance(client.getDateNaissance())
+                    .adresseResidence(client.getAdresseResidence())
+                    .build();
+            return clientResponseOcrDto;
+        } else {
+            return null;
+        }
+    }
+
 
     public Boolean isClientExist(String email){
 
@@ -103,4 +121,5 @@ public class ClientService {
         return client != null;
 
     }
+
 }
