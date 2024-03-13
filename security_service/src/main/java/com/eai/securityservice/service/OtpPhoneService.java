@@ -28,7 +28,6 @@ public class OtpPhoneService {
     private final Counter counter;
     private final CounterRepository counterRepository;
     private final NotificationClient notificationClient;
-
     private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
 
     public String generateOtpPhone(@RequestBody OtpPhoneRequest otpPhoneRequest) {
