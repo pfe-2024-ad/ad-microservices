@@ -16,12 +16,11 @@ import com.eai.securityservice.repository.HistoryRepository;
 import com.eai.securityservice.repository.OtpRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-@RestController
+
 @RequiredArgsConstructor
 public class OtpEmailService {
     private final OtpRepository otpRepository;
@@ -63,8 +62,6 @@ public class OtpEmailService {
                 otp.setDateGeneration(new Date());
                 otp.setAttempts(0);
                 isSent =  notificationClient.sendOtpEmail(emailSender);
-
-
             } else {
                 isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
             }
@@ -112,8 +109,6 @@ public class OtpEmailService {
     }
 
 
-
-
     public Boolean verifyOtp(String input, Integer counter){
         return compareOtp(input, counter);
     }
@@ -135,6 +130,5 @@ public class OtpEmailService {
         return code;
 
     }
-
 
 }
