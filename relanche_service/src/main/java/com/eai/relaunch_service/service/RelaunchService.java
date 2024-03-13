@@ -48,7 +48,7 @@ public class RelaunchService {
                 } else if (RelaunchMovementStatus.NONE.equals(relaunch.getRelaunchStatus())) {
                     relaunch.setRelaunchStatus(RelaunchMovementStatus.FIRST_RELAUNCH);
                 } else if (RelaunchMovementStatus.FIRST_RELAUNCH.equals(relaunch.getRelaunchStatus())) {
-                    relaunch.setRelaunchStatus(RelaunchMovementStatus.NO_LONGER_CONCERNED);
+                    relaunch.setRelaunchStatus(RelaunchMovementStatus.SECOND_RELAUNCH);
                 } else if (RelaunchMovementStatus.SECOND_RELAUNCH.equals(relaunch.getRelaunchStatus())) {
                     relaunch.setRelaunchStatus(RelaunchMovementStatus.NO_LONGER_CONCERNED);
                 }
