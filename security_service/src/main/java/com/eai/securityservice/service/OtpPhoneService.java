@@ -14,12 +14,13 @@ import com.eai.securityservice.repository.CounterRepository;
 import com.eai.securityservice.repository.HistoryRepository;
 import com.eai.securityservice.repository.OtpRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
+@Service
 @RequiredArgsConstructor
 public class OtpPhoneService {
 
