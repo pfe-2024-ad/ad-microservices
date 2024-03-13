@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 @FeignClient(name = "client-service", path = "/agd/client-service")
 public interface UserClient {
     @PostMapping("create-client")
@@ -17,5 +19,8 @@ public interface UserClient {
 
     @PostMapping("check-client-if-exist")
     Boolean isClientExist(@RequestBody ClientRequest request);
+
+    @GetMapping("get-clients-need-relanche")
+    List<ClientResponseForRelanche> getClientForRelanche();
 
 }

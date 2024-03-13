@@ -4,8 +4,11 @@ import com.eai.client_service.dto.InfoClientRequest;
 import com.eai.client_service.service.ClientService;
 import com.eai.openfeignservice.user.ClientRequest;
 
+import com.eai.openfeignservice.user.ClientResponseForRelanche;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,5 +46,9 @@ public class ClientController {
        return clientService.isClientExist(clientRequest.getEmail());
     }
 
+    @GetMapping("get-clients-need-relanche")
+    public List<ClientResponseForRelanche> getClientForRelanche(){
+        return clientService.getClientForRelanche();
+    }
 
 }

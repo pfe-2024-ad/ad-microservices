@@ -6,13 +6,18 @@ import com.eai.client_service.dto.InfoClientRequest;
 import com.eai.client_service.outils.enums.AddPhoneStatus;
 import com.eai.client_service.outils.enums.ClientStatus;
 import com.eai.client_service.model.Client;
+import com.eai.client_service.outils.enums.ClientStep;
 import com.eai.client_service.outils.enums.SaveInfoClientStatus;
 import com.eai.client_service.repository.ClientRepository;
 import com.eai.client_service.repository.PackRepository;
+import com.eai.openfeignservice.relanche.RelancheClient;
+import com.eai.openfeignservice.relanche.RelancheRequest;
 import com.eai.openfeignservice.user.ClientRequest;
+import com.eai.openfeignservice.user.ClientResponseForRelanche;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -23,11 +28,15 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final PackRepository packRepository;
+    private final RelancheClient relancheClient;
+
 
 
     public Integer saveClient(ClientRequest clientRequest){
         ClientStatus status = ClientStatus.PRE_PROSPECT;
-        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil());
+        ClientStep clientStep = ClientStep.EMAIL_STEP;
+        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil(), clientStep);
+
         Pack pack = new Pack(clientRequest.getNomPack(), clientRequest.getTypePack(), clientRequest.getOffres(), clientRequest.getNomCarte(),
                 clientRequest.getSendCarte(), clientRequest.getServices());
 
@@ -46,10 +55,17 @@ public class ClientService {
         Optional<Client> clientOptional = clientRepository.findById(idClient);
         if(clientOptional.isPresent()){
             Client client = clientOptional.get(); // Extracting the Client object from Optional
+            client.setClientStep(ClientStep.PHONE_STEP);
             client.setClientStatus(ClientStatus.PROSPECT);
             client.setIndicatifTel(indicatiTel);
             client.setNumTel(numTel);
             clientRepository.save(client);
+
+            RelancheRequest relancheRequest = RelancheRequest.builder()
+                            .idClient(idClient).build();
+
+            relancheClient.changeRelaunchStatusToNone(relancheRequest);
+
             return AddPhoneStatus.SUCCESSFUL.getLabel();
         }
         else{
@@ -61,6 +77,9 @@ public class ClientService {
         Optional<Client> clientOptional = clientRepository.findById(infoClientRequest.getIdClient());
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
+          
+            client.setClientStep(ClientStep.OCR_STEP);
+
             client.setNom(infoClientRequest.getNom());
             client.setPrenom(infoClientRequest.getPrenom());
             client.setDateNaissance(infoClientRequest.getDateNaissance());
@@ -71,6 +90,14 @@ public class ClientService {
             client.setCodePostal(infoClientRequest.getCodePostal());
             client.setMobiliteBancaire(infoClientRequest.getMobiliteBancaire());
             clientRepository.save(client);
+
+            RelancheRequest relancheRequest = RelancheRequest.builder()
+                    .idClient(infoClientRequest.getIdClient()).build();
+
+            relancheClient.changeRelaunchStatusToNone(relancheRequest);
+
+
+
             return SaveInfoClientStatus.SUCCESSFUL.getLabel();
         } else {
             return SaveInfoClientStatus.ERROR.getLabel();
@@ -81,9 +108,16 @@ public class ClientService {
         Optional<Client> clientOptional = clientRepository.findById(infoClientRequest.getIdClient());
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
+            client.setClientStep(ClientStep.AGENCY_STEP);
             client.setVilleAgence(infoClientRequest.getVilleAgence());
             client.setAdresseAgence(infoClientRequest.getAdresseAgence());
             clientRepository.save(client);
+
+
+            RelancheRequest relancheRequest = RelancheRequest.builder()
+                    .idClient(infoClientRequest.getIdClient()).build();
+            relancheClient.changeRelaunchStatusToNone(relancheRequest);
+
             return SaveInfoClientStatus.SUCCESSFUL.getLabel();
         } else {
             return SaveInfoClientStatus.ERROR.getLabel();
@@ -121,5 +155,21 @@ public class ClientService {
         return client != null;
 
     }
+
+    public List<ClientResponseForRelanche> getClientForRelanche(){
+        List<ClientResponseForRelanche> clientResponse = new ArrayList<>();
+        List<Client> allClient = clientRepository.findAll();
+        for(Client client:allClient){
+            if(client.getClientStep() != ClientStep.RDV_STEP){
+                ClientResponseForRelanche clientResponseForRelanche = ClientResponseForRelanche.builder()
+                        .idClient(client.getId())
+                        .email(client.getEmail())
+                        .build();
+                clientResponse.add(clientResponseForRelanche);
+            }
+        }
+        return clientResponse;
+    }
+
 
 }
