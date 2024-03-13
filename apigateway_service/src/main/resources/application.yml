@@ -21,6 +21,10 @@ spring:
           uri: lb://SECURITY-SERVICE
           predicates:
             - Path=/agd/security-service/**
+        - id: relaunch-service
+          uri: lb://RELAUNCH-SERVICE
+          predicates:
+            - Path=/agd/relaunch-service/**
 
 eureka:
   instance:

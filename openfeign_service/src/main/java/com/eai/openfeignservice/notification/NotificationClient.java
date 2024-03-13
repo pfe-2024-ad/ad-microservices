@@ -14,4 +14,7 @@ public interface NotificationClient {
 
     @PostMapping("send-sms")
     String sendSms(@RequestBody SmsSender request);
+
+    @PostMapping("/send-relaunch-email")
+    String sendRelaunchEmail(@RequestBody EmailSender emailSender);
 }
