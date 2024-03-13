@@ -4,11 +4,13 @@ import com.bastiaanjansen.otp.HMACAlgorithm;
 import com.bastiaanjansen.otp.HOTPGenerator;
 import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
+import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import com.eai.securityservice.model.Counter;
 import com.eai.securityservice.model.History;
 import com.eai.securityservice.model.Otp;
 import com.eai.securityservice.outiles.enums.OtpGenerationStatusEnum;
+import com.eai.securityservice.outiles.enums.StatusOTP;
 import com.eai.securityservice.repository.CounterRepository;
 import com.eai.securityservice.repository.HistoryRepository;
 import com.eai.securityservice.repository.OtpRepository;
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequiredArgsConstructor
-public class GenerateOtpEmail {
+public class OtpEmailService {
     private final OtpRepository otpRepository;
     private final HistoryRepository historyRepository;
     private final Counter counter;
@@ -73,6 +75,47 @@ public class GenerateOtpEmail {
         counter.incrementCounter();
         counterRepository.save(counter);
         return isSent;
+    }
+
+    public String compareOtp(@RequestBody ClientRequest otpEmailRequest) {
+
+        Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+        if (isPast30Minutes(otp.getDateGeneration()) < 15) {
+            if (otp.getAttempts() < 3) {
+                Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
+
+
+                Integer idClient = userClient.saveEmail(otpEmailRequest);
+                otp.incrementAttempt();
+                otp.setIdClient(idClient);
+                otpRepository.save(otp);
+
+                if (isOtpValid) {
+                    return StatusOTP.VALIDE.getLabel();
+                }else {
+                    return StatusOTP.INVALID.getLabel();
+                }
+            } else{
+                return StatusOTP.EXPIRED.getLabel();
+            }
+        } else {
+            return StatusOTP.TIMEOUT.getLabel();
+        }
+    }
+
+    public boolean compareOtp( String userInput , Integer counter) {
+        HOTPGenerator hotp = new HOTPGenerator.Builder(SECRET_KEY_BYTES)
+                .withPasswordLength(8)
+                .withAlgorithm(HMACAlgorithm.SHA256)
+                .build();
+        return hotp.verify(userInput, counter);
+    }
+
+
+
+
+    public Boolean verifyOtp(String input, Integer counter){
+        return compareOtp(input, counter);
     }
 
 

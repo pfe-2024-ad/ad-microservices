@@ -1,7 +1,6 @@
 package com.eai.securityservice.controller;
 import com.eai.openfeignservice.user.ClientRequest;
-import com.eai.securityservice.service.CompareOtpEmail;
-import com.eai.securityservice.service.GenerateOtpEmail;
+import com.eai.securityservice.service.OtpEmailService;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,18 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/otp_email")
 @RequiredArgsConstructor
 public class OtpEmailController {
-    private final CompareOtpEmail compareOtpEmail;
-    private final GenerateOtpEmail generateEmailOtp;
+    private final OtpEmailService otpEmailService;
 
     @PostMapping("/generate")
     public String generateEmailOtp(@RequestBody OtpEmailRequest otpEmailRequest ) {
-        return generateEmailOtp.generateOtpEmail(otpEmailRequest);
+        return otpEmailService.generateOtpEmail(otpEmailRequest);
     }
 
 
     @PostMapping("/compare")
     public String compareOtp(@RequestBody ClientRequest otpEmailRequest) {
-        return compareOtpEmail.compareOtp(otpEmailRequest);
+        return otpEmailService.compareOtp(otpEmailRequest);
     }
 }
 
