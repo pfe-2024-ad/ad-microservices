@@ -17,22 +17,21 @@ public class SmsSenderService {
     private final TwilioConfiguration twilioConfiguration;
 
 
-    public String sendSms(String indicatifTel, String numTel, String codeOtpSms) {
+    public String sendOtpSms(String keyPhone, String numPhone, String message) {
         try {
-            String phoneNumber = indicatifTel + numTel;
+            String phoneNumber = keyPhone + numPhone;
             PhoneNumber to = new PhoneNumber(phoneNumber);
             PhoneNumber from = new PhoneNumber(twilioConfiguration.getTrialNumber());
 
-            String message = "Agence Directe. Ouverture de compte en ligne Code de confirmation " + codeOtpSms + " valable pour une durée de: 15 minutes";
 
             MessageCreator creator = Message.creator(to, from, message);
             creator.create();
-
             return SmsStatus.SUCCESSFUL.getLabel();
 
         } catch (Exception e ){
             e.printStackTrace();
             return SmsStatus.ERROR.getLabel();
+
         }
 
     }

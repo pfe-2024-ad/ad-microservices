@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface NotificationClient {
 
     @PostMapping("send-email")
-    String sendEmail(@RequestBody EmailSender request);
+    String sendOtpEmail(@RequestBody EmailSender request);
 
     @PostMapping("send-sms")
-    String sendSms(@RequestBody SmsSender request);
+    String sendOtpSms(@RequestBody SmsSender request);
 }
