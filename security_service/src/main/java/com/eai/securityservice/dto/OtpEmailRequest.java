@@ -1,18 +1,15 @@
-package com.eai.openfeignservice.notification;
+package com.eai.securityservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmailSender {
+public class OtpEmailRequest {
     private String email;
-    private String codeOtpEmail;
-
+    private String userInput;
 }
