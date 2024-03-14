@@ -1,4 +1,4 @@
-package com.eai.notification_service.relaunch_email;
+package com.eai.notification_service.service;
 
 import com.eai.notification_service.outils.enums.EmailStatus;
 import com.eai.notification_service.service.ThymeleafService;

@@ -1,5 +1,6 @@
-package com.eai.notification_service.relaunch_email;
+package com.eai.notification_service.controller;
 
+import com.eai.notification_service.service.RelaunchEmailSenderService;
 import com.eai.openfeignservice.notification.EmailSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
