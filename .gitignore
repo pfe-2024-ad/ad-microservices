@@ -1,0 +1,7 @@
+/apigateway_service/target/
+/.idea/
+/client_service/target/
+/notification_service/target/
+/openfeign_service/target/
+/relanche_service/target/
+/security_service/target/
