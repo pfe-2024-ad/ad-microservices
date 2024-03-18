@@ -118,7 +118,7 @@ public class OtpPhoneService {
                     return StatusOTP.INVALID.getLabel();
                 }
             } else {
-                return StatusOTP.EXPIRED.getLabel();
+                return StatusOTP.EXPIRED_ATTEMPT.getLabel();
             }
         } else {
             return StatusOTP.TIMEOUT.getLabel();
