@@ -21,7 +21,7 @@ public class OtpPhoneController {
 
 
     @PostMapping("/compare")
-    public StatusOTP compareOtp(@RequestBody OtpPhoneRequest otpPhoneRequest) {
+    public String compareOtp(@RequestBody OtpPhoneRequest otpPhoneRequest) {
         return otpPhoneService.compareOtp(otpPhoneRequest);
 
     }
