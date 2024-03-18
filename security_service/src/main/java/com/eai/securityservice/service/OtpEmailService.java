@@ -104,7 +104,7 @@ public class OtpEmailService {
                 otpRepository.save(otp);
 
                 if (isOtpValid) {
-                    return StatusOTP.INVALID.getLabel();
+                    return StatusOTP.VALID.getLabel();
                 }else{
                     return StatusOTP.INVALID.getLabel();
                 }

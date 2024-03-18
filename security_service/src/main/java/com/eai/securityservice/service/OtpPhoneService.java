@@ -113,7 +113,7 @@ public class OtpPhoneService {
                             .indicatifTel(otpPhoneRequest.getKeyPhone())
                             .numTel(otpPhoneRequest.getNumPhone()).build();
                     String idClient = userClient.addPhone(clientRequest);
-                    return StatusOTP.VALIDE.getLabel();
+                    return StatusOTP.VALID.getLabel();
                 } else {
                     return StatusOTP.INVALID.getLabel();
                 }
