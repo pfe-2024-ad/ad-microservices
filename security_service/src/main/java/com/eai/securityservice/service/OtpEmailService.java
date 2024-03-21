@@ -5,6 +5,7 @@ import com.bastiaanjansen.otp.HOTPGenerator;
 import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
+import com.eai.openfeignservice.user.UserClient;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import com.eai.securityservice.model.Counter;
 import com.eai.securityservice.model.History;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -29,6 +31,7 @@ public class OtpEmailService {
     private final Counter counter;
     private final CounterRepository counterRepository;
     private final NotificationClient notificationClient;
+    private final UserClient userClient;
 
     private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
 
@@ -46,7 +49,12 @@ public class OtpEmailService {
         if (otp == null) {
             history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
             otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-            isSent =  notificationClient.sendOtpEmail(emailSender);
+            if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
+                isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+            }else{
+                isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+            }
+
         } else {
             if (history.getNumGeneration() < 5) {
                 history.setCounter(counter.getCounter());
@@ -55,14 +63,22 @@ public class OtpEmailService {
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
                 otp.setAttempts(0);
-                isSent =  notificationClient.sendOtpEmail(emailSender);
+                if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
+                    isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                }else{
+                    isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                }
 
             } else if (history.getNumGeneration() == 5 && isPast30Minutes(history.getDateGeneration()) > 1) {
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
                 otp.setAttempts(0);
-                isSent =  notificationClient.sendOtpEmail(emailSender);
+                if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
+                    isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                }else{
+                    isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                }
             } else {
                 isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
             }
@@ -82,18 +98,18 @@ public class OtpEmailService {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
 
-                Integer idClient = userClient.saveEmail(otpEmailRequest);
+                Integer idClient = userClient.saveClient(otpEmailRequest);
                 otp.incrementAttempt();
                 otp.setIdClient(idClient);
                 otpRepository.save(otp);
 
                 if (isOtpValid) {
-                    return StatusOTP.VALIDE.getLabel();
-                }else {
+                    return StatusOTP.VALID.getLabel();
+                }else{
                     return StatusOTP.INVALID.getLabel();
                 }
             } else{
-                return StatusOTP.EXPIRED.getLabel();
+                return StatusOTP.EXPIRED_ATTEMPT.getLabel();
             }
         } else {
             return StatusOTP.TIMEOUT.getLabel();

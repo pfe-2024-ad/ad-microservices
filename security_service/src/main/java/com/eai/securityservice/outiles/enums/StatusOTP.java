@@ -8,9 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum StatusOTP {
 
-        VALIDE("01"),
+        VALID("01"),
         INVALID("02"),
-        EXPIRED("03"),
+        EXPIRED_ATTEMPT("03"),
         TIMEOUT("04");
         private final String label;
 

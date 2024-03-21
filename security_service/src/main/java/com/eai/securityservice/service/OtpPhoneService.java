@@ -4,6 +4,8 @@ import com.bastiaanjansen.otp.HMACAlgorithm;
 import com.bastiaanjansen.otp.HOTPGenerator;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.notification.SmsSender;
+import com.eai.openfeignservice.user.ClientRequest;
+import com.eai.openfeignservice.user.UserClient;
 import com.eai.securityservice.dto.OtpPhoneRequest;
 import com.eai.securityservice.model.Counter;
 import com.eai.securityservice.model.History;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class OtpPhoneService {
     private final Counter counter;
     private final CounterRepository counterRepository;
     private final NotificationClient notificationClient;
+    private final UserClient userClient;
     private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
 
     public String generateOtpPhone(@RequestBody OtpPhoneRequest otpPhoneRequest) {
@@ -48,8 +52,11 @@ public class OtpPhoneService {
             otp.setAttempts(0);
             otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
             otp.setNumPhone(otpPhoneRequest.getNumPhone());
-            notificationClient.sendOtpSms(smsSender);
-            isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+            if(Objects.equals(notificationClient.sendOtpSms(smsSender), "01")){
+                isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+            }else{
+                isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+            }
 
         } else{
             if (history.getNumGeneration() < 5) {
@@ -61,8 +68,11 @@ public class OtpPhoneService {
                 otp.setNumPhone(otpPhoneRequest.getNumPhone());
                 otp.setDateGeneration(new Date());
                 otp.setAttempts(0);
-                notificationClient.sendOtpSms(smsSender);
-                isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+                if(Objects.equals(notificationClient.sendOtpSms(smsSender), "01")){
+                    isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                }else{
+                    isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                }
 
 
 
@@ -73,11 +83,14 @@ public class OtpPhoneService {
                 otp.setAttempts(0);
                 otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
                 otp.setNumPhone(otpPhoneRequest.getNumPhone());
-                notificationClient.sendOtpSms(smsSender);
-                isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
+                if(Objects.equals(notificationClient.sendOtpSms(smsSender), "01")){
+                    isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                }else{
+                    isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                }
             }
             else {
-                isSent = OtpGenerationStatusEnum.EMAIL_EXIST_ERROR.getLabel();
+                isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
             }
         }
         otpRepository.save(otp);
@@ -86,7 +99,7 @@ public class OtpPhoneService {
         counterRepository.save(counter);
         return isSent;
     }
-    public StatusOTP compareOtp(@RequestBody OtpPhoneRequest otpPhoneRequest) {
+    public String compareOtp(@RequestBody OtpPhoneRequest otpPhoneRequest) {
 
         Otp otp = otpRepository.findByKeyPhoneAndNumPhone(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone());
         if (isPast30Minutes(otp.getDateGeneration())<30) {
@@ -95,15 +108,20 @@ public class OtpPhoneService {
                 otp.incrementAttempt();
                 otpRepository.save(otp);
                 if (isOtpValid) {
-                    return StatusOTP.VALIDE;
+                    ClientRequest clientRequest = ClientRequest.builder()
+                            .idClient(otpPhoneRequest.getIdClient())
+                            .indicatifTel(otpPhoneRequest.getKeyPhone())
+                            .numTel(otpPhoneRequest.getNumPhone()).build();
+                    String idClient = userClient.addPhone(clientRequest);
+                    return StatusOTP.VALID.getLabel();
                 } else {
-                    return StatusOTP.INVALID;
+                    return StatusOTP.INVALID.getLabel();
                 }
             } else {
-                return StatusOTP.EXPIRED;
+                return StatusOTP.EXPIRED_ATTEMPT.getLabel();
             }
         } else {
-            return StatusOTP.TIMEOUT;
+            return StatusOTP.TIMEOUT.getLabel();
         }
 
     }
