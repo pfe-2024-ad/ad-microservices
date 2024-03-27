@@ -6,6 +6,7 @@ import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.UserClient;
+import com.eai.securityservice.config.JwtUtil;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import com.eai.securityservice.model.Counter;
 import com.eai.securityservice.model.History;
@@ -32,6 +33,7 @@ public class OtpEmailService {
     private final CounterRepository counterRepository;
     private final NotificationClient notificationClient;
     private final UserClient userClient;
+    private final JwtUtil jwtUtil;
 
     private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
 
@@ -104,7 +106,9 @@ public class OtpEmailService {
                 otpRepository.save(otp);
 
                 if (isOtpValid) {
-                    return StatusOTP.VALID.getLabel();
+                    // Générer et retourner un token JWT
+                    String token = jwtUtil.generateToken(otpEmailRequest.getEmail());
+                    return StatusOTP.VALID.getLabel() + " " + token;
                 }else{
                     return StatusOTP.INVALID.getLabel();
                 }
@@ -146,5 +150,6 @@ public class OtpEmailService {
         return code;
 
     }
+
 
 }

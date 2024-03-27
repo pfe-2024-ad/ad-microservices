@@ -13,14 +13,17 @@ spring:
           uri: lb://CLIENT-SERVICE
           predicates:
             - Path=/agd/client-service/**
+
         - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
             - Path=/agd/notification-service/**
+
         - id: security-service
           uri: lb://SECURITY-SERVICE
           predicates:
             - Path=/agd/security-service/**
+
         - id: relaunch-service
           uri: lb://RELAUNCH-SERVICE
           predicates:
