@@ -25,6 +25,20 @@ spring:
           uri: lb://RELAUNCH-SERVICE
           predicates:
             - Path=/agd/relaunch-service/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - PUT
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - "Access-Control-Allow-Origin"
+            allowCredentials: true
 
 eureka:
   instance:
