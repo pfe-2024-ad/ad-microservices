@@ -124,11 +124,12 @@ public class ClientService {
         }
     }
 
-    public ClientResponseOcrDto getClient(Integer id){
+    public ClientResponseOcrDto getClient(Integer id, String similarity){
         Optional<Client> clientOptional = clientRepository.findById(id);
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
             ClientResponseOcrDto clientResponseOcrDto = ClientResponseOcrDto.builder()
+                    .similarity(similarity)
                     .nom(client.getNom())
                     .prenom(client.getPrenom())
                     .cin(client.getCin())
