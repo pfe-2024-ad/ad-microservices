@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ClientResponseOcrDto {
 
+    private String similarity;
+
     private String nom;
 
     private String prenom;

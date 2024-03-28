@@ -71,6 +71,7 @@ public class OcrService {
         HttpEntity<FluxEntreeTrustFaceDto> requestEntityFace = new HttpEntity<>(fluxEntreeTrustFaceDto, headers);
         ResponseEntity<FluxSortieTrustFaceDto> responseEntityFace = restTemplate.postForEntity("http://localhost:7777/agd/client-service/mocks/ocr/trustface", requestEntityFace, FluxSortieTrustFaceDto.class);
 
+        String similarity = responseEntityFace.getBody().getResult().getResults().getSimilarity();
         InfoClientRequest infoClientRequest = InfoClientRequest.builder()
                 .idClient(id)
                 .nom(responseEntityId.getBody().getDocumentDto().getNom())
@@ -81,7 +82,7 @@ public class OcrService {
                 .build();
         clientService.updateInfoClient(infoClientRequest);
 
-        return clientService.getClient(infoClientRequest.getIdClient());
+        return clientService.getClient(infoClientRequest.getIdClient(), similarity);
 
     }
 
