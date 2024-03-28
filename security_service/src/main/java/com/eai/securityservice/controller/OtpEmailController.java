@@ -1,5 +1,6 @@
 package com.eai.securityservice.controller;
 import com.eai.openfeignservice.user.ClientRequest;
+import com.eai.securityservice.dto.OtpEmailCompareResponse;
 import com.eai.securityservice.service.OtpEmailService;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class OtpEmailController {
 
 
     @PostMapping("/compare")
-    public String compareOtp(@RequestBody ClientRequest otpEmailRequest) {
+    public OtpEmailCompareResponse compareOtp(@RequestBody ClientRequest otpEmailRequest) {
         return otpEmailService.compareOtp(otpEmailRequest);
     }
 }
