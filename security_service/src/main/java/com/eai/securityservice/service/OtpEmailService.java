@@ -6,6 +6,7 @@ import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.UserClient;
+import com.eai.securityservice.dto.OtpEmailCompareResponse;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import com.eai.securityservice.model.Counter;
 import com.eai.securityservice.model.History;
@@ -91,7 +92,7 @@ public class OtpEmailService {
         return isSent;
     }
 
-    public String compareOtp(@RequestBody ClientRequest otpEmailRequest) {
+    public OtpEmailCompareResponse compareOtp(@RequestBody ClientRequest otpEmailRequest) {
 
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
         if (isPast30Minutes(otp.getDateGeneration()) < 15) {
@@ -104,15 +105,31 @@ public class OtpEmailService {
                 otpRepository.save(otp);
 
                 if (isOtpValid) {
-                    return StatusOTP.VALID.getLabel();
+                    OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
+                            .statusOtp(StatusOTP.VALID.getLabel())
+                            .idClient(idClient)
+                            .build();
+                    return otpEmailCompareResponse;
                 }else{
-                    return StatusOTP.INVALID.getLabel();
+                    OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
+                            .statusOtp(StatusOTP.INVALID.getLabel())
+                            .idClient(null)
+                            .build();
+                    return otpEmailCompareResponse;
                 }
             } else{
-                return StatusOTP.EXPIRED_ATTEMPT.getLabel();
+                OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
+                        .statusOtp(StatusOTP.EXPIRED_ATTEMPT.getLabel())
+                        .idClient(null)
+                        .build();
+                return otpEmailCompareResponse;
             }
         } else {
-            return StatusOTP.TIMEOUT.getLabel();
+            OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
+                    .statusOtp(StatusOTP.TIMEOUT.getLabel())
+                    .idClient(null)
+                    .build();
+            return otpEmailCompareResponse;
         }
     }
 
