@@ -12,10 +12,6 @@ public class ParamService {
 
     private final ParamRepository paramRepository;
 
-    public void addParam(Param param){
-
-        paramRepository.save(param);
-    }
 
     public ParamDto getParam(ParamDto paramDto){
         Param param =  paramRepository.findParamByName(paramDto.getName());
@@ -26,11 +22,6 @@ public class ParamService {
         return  paramResponse;
     }
 
-    public void updateParam(String name, String value){
-        Param param = paramRepository.findParamByName(name);
-        param.setValue(value);
-        paramRepository.save(param);
-    }
 
 
 
