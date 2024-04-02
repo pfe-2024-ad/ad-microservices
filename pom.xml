@@ -24,6 +24,7 @@
     <module>notification_service</module>
     <module>apigateway_service</module>
     <module>openfeign_service</module>
+    <module>configuration_service</module>
 
   </modules>
 
