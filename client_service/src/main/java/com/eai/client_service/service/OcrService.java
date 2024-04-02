@@ -1,11 +1,14 @@
 package com.eai.client_service.service;
 
 import com.eai.client_service.dto.InfoClientRequest;
-import com.eai.client_service.dto.mocks.ocr.ClientResponseOcrDto;
+import com.eai.client_service.dto.mocks.ocr.ClientResponseOcrStatut;
 import com.eai.client_service.dto.mocks.ocr.trustface.FluxEntreeTrustFaceDto;
 import com.eai.client_service.dto.mocks.ocr.trustface.FluxSortieTrustFaceDto;
 import com.eai.client_service.dto.mocks.ocr.trustid.FluxEntreeTrustIdDto;
 import com.eai.client_service.dto.mocks.ocr.trustid.FluxSortieTrustIdDto;
+import com.eai.client_service.outils.enums.OcrStatus;
+import com.eai.openfeignservice.config.ConfigClient;
+import com.eai.openfeignservice.config.ParamDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpEntity;
@@ -15,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +31,10 @@ import java.util.List;
 public class OcrService {
 
     private final ClientService clientService;
-    public ClientResponseOcrDto getCinInfos(MultipartFile file1, MultipartFile file2, MultipartFile file3, Integer id) {
+    private final ConfigClient configClient;
+
+
+    public Object getCinInfos(MultipartFile file1, MultipartFile file2, MultipartFile file3, Integer id) {
         String base64_RECTO = "";
         String base64_VERSO = "";
         String base64_SELFIE = "";
@@ -71,8 +79,18 @@ public class OcrService {
         HttpEntity<FluxEntreeTrustFaceDto> requestEntityFace = new HttpEntity<>(fluxEntreeTrustFaceDto, headers);
         ResponseEntity<FluxSortieTrustFaceDto> responseEntityFace = restTemplate.postForEntity("http://localhost:7777/agd/client-service/mocks/ocr/trustface", requestEntityFace, FluxSortieTrustFaceDto.class);
 
-        String similarity = responseEntityFace.getBody().getResult().getResults().getSimilarity();
-        InfoClientRequest infoClientRequest = InfoClientRequest.builder()
+        //get similarity value from FluxSortieTrustFace OCR
+        Integer similarityOcr = Integer.parseInt(responseEntityFace.getBody().getResult().getResults().getSimilarity());
+
+        //get similarity value from configuration_service
+        ParamDto paramDto = ParamDto.builder()
+                .name("SIMILARITY").build();
+        Integer getSimilarityFromConfig = Integer.parseInt(configClient.getParam(paramDto).getValue());
+
+
+        if(similarityOcr >= getSimilarityFromConfig ) {
+
+           InfoClientRequest infoClientRequest = InfoClientRequest.builder()
                 .idClient(id)
                 .nom(responseEntityId.getBody().getDocumentDto().getNom())
                 .prenom(responseEntityId.getBody().getDocumentDto().getPrenom())
@@ -80,9 +98,14 @@ public class OcrService {
                 .cin(responseEntityId.getBody().getDocumentDto().getNumeroPersonel())
                 .adresseResidence(responseEntityId.getBody().getDocumentDto().getAddress())
                 .build();
-        clientService.updateInfoClient(infoClientRequest);
+           clientService.updateInfoClient(infoClientRequest);
 
-        return clientService.getClient(infoClientRequest.getIdClient(), similarity);
+           return clientService.getClient(infoClientRequest.getIdClient());
+        } else {
+            ClientResponseOcrStatut clientResponseOcrStatut = ClientResponseOcrStatut.builder()
+                    .status(OcrStatus.ERROR.getLabel()).build();
+            return clientResponseOcrStatut;
+        }
 
     }
 

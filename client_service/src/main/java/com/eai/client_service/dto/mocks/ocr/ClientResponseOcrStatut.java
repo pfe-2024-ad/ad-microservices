@@ -9,18 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ClientResponseOcrDto {
+public class ClientResponseOcrStatut {
 
     private String status;
-
-    private String nom;
-
-    private String prenom;
-
-    private String dateNaissance;
-
-    private String cin;
-
-    private String adresseResidence;
-
 }
