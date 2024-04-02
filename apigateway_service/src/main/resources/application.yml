@@ -25,6 +25,10 @@ spring:
           uri: lb://RELAUNCH-SERVICE
           predicates:
             - Path=/agd/relaunch-service/**
+        - id: configuration-service
+          uri: lb://CONFIGURATION-SERVICE
+          predicates:
+            - Path=/agd/configuration-service/**
       globalcors:
         cors-configurations:
           '[/**]':
