@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Param {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Integer param_id;
+    private Integer id;
 
     @Column(name = "param_name", unique = true)
     private String name;
