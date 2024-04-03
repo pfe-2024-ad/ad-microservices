@@ -92,7 +92,7 @@ public class OtpEmailService {
         return isSent;
     }
 
-    public OtpEmailCompareResponse compareOtp(@RequestBody ClientRequest otpEmailRequest) {
+    public OtpEmailCompareResponse CompareOtpEmailResponse(@RequestBody ClientRequest otpEmailRequest) {
 
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
         if (isPast30Minutes(otp.getDateGeneration()) < 15) {

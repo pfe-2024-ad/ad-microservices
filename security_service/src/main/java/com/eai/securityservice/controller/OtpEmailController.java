@@ -23,7 +23,7 @@ public class OtpEmailController {
 
     @PostMapping("/compare")
     public OtpEmailCompareResponse compareOtp(@RequestBody ClientRequest otpEmailRequest) {
-        return otpEmailService.compareOtp(otpEmailRequest);
+        return otpEmailService.CompareOtpEmailResponse(otpEmailRequest);
     }
 }
 
