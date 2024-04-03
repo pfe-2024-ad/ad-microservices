@@ -5,3 +5,4 @@
 /openfeign_service/target/
 /relanche_service/target/
 /security_service/target/
+/configuration_service/target/
