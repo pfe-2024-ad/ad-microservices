@@ -28,7 +28,7 @@ public class TrustFaceService {
         resultatComparaison.setScore("fakeScore");
         resultatComparaison.setSecondFaceIndex("fakeSecondFace");
         resultatComparaison.setSecondIndex("fakeSecondIndex");
-        resultatComparaison.setSimilarity("100%");
+        resultatComparaison.setSimilarity("80");
 
         result.setResults(resultatComparaison);
         return fluxSortieTrustFaceDto;
