@@ -6,6 +6,7 @@ import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.UserClient;
+import com.eai.securityservice.dto.OtpEmailCompareResponse;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import com.eai.securityservice.model.Counter;
 import com.eai.securityservice.model.History;
@@ -91,9 +92,10 @@ public class OtpEmailService {
         return isSent;
     }
 
-    public String compareOtp(@RequestBody ClientRequest otpEmailRequest) {
+    public OtpEmailCompareResponse CompareOtpEmailResponse(@RequestBody ClientRequest otpEmailRequest) {
 
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+        OtpEmailCompareResponse otpEmailCompareResponse = new OtpEmailCompareResponse();
         if (isPast30Minutes(otp.getDateGeneration()) < 15) {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
@@ -104,15 +106,23 @@ public class OtpEmailService {
                 otpRepository.save(otp);
 
                 if (isOtpValid) {
-                    return StatusOTP.VALID.getLabel();
+                    otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
+                    otpEmailCompareResponse.setIdClient(idClient);
+                    return otpEmailCompareResponse;
                 }else{
-                    return StatusOTP.INVALID.getLabel();
+                    otpEmailCompareResponse.setStatusOtp(StatusOTP.INVALID.getLabel());
+                    otpEmailCompareResponse.setIdClient(null);
+                    return otpEmailCompareResponse;
                 }
             } else{
-                return StatusOTP.EXPIRED_ATTEMPT.getLabel();
+                otpEmailCompareResponse.setStatusOtp(StatusOTP.EXPIRED_ATTEMPT.getLabel());
+                otpEmailCompareResponse.setIdClient(null);
+                return otpEmailCompareResponse;
             }
         } else {
-            return StatusOTP.TIMEOUT.getLabel();
+            otpEmailCompareResponse.setStatusOtp(StatusOTP.TIMEOUT.getLabel());
+            otpEmailCompareResponse.setIdClient(null);
+            return otpEmailCompareResponse;
         }
     }
 
