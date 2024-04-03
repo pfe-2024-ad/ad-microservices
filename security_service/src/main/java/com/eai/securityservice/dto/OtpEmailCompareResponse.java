@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+
 public class OtpEmailCompareResponse {
     private String statusOtp;
     private Integer idClient;
