@@ -95,6 +95,7 @@ public class OtpEmailService {
     public OtpEmailCompareResponse CompareOtpEmailResponse(@RequestBody ClientRequest otpEmailRequest) {
 
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+        OtpEmailCompareResponse otpEmailCompareResponse = new OtpEmailCompareResponse();
         if (isPast30Minutes(otp.getDateGeneration()) < 15) {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
@@ -105,30 +106,22 @@ public class OtpEmailService {
                 otpRepository.save(otp);
 
                 if (isOtpValid) {
-                    OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
-                            .statusOtp(StatusOTP.VALID.getLabel())
-                            .idClient(idClient)
-                            .build();
+                    otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
+                    otpEmailCompareResponse.setIdClient(idClient);
                     return otpEmailCompareResponse;
                 }else{
-                    OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
-                            .statusOtp(StatusOTP.INVALID.getLabel())
-                            .idClient(null)
-                            .build();
+                    otpEmailCompareResponse.setStatusOtp(StatusOTP.INVALID.getLabel());
+                    otpEmailCompareResponse.setIdClient(null);
                     return otpEmailCompareResponse;
                 }
             } else{
-                OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
-                        .statusOtp(StatusOTP.EXPIRED_ATTEMPT.getLabel())
-                        .idClient(null)
-                        .build();
+                otpEmailCompareResponse.setStatusOtp(StatusOTP.EXPIRED_ATTEMPT.getLabel());
+                otpEmailCompareResponse.setIdClient(null);
                 return otpEmailCompareResponse;
             }
         } else {
-            OtpEmailCompareResponse otpEmailCompareResponse = OtpEmailCompareResponse.builder()
-                    .statusOtp(StatusOTP.TIMEOUT.getLabel())
-                    .idClient(null)
-                    .build();
+            otpEmailCompareResponse.setStatusOtp(StatusOTP.TIMEOUT.getLabel());
+            otpEmailCompareResponse.setIdClient(null);
             return otpEmailCompareResponse;
         }
     }
