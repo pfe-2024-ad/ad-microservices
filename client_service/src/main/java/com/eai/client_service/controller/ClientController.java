@@ -5,6 +5,7 @@ import com.eai.client_service.service.ClientService;
 import com.eai.openfeignservice.user.ClientRequest;
 
 import com.eai.openfeignservice.user.ClientResponseForRelanche;
+import com.eai.openfeignservice.user.ClientResponseForSecurity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,5 +51,12 @@ public class ClientController {
     public List<ClientResponseForRelanche> getClientForRelanche(){
         return clientService.getClientForRelanche();
     }
+
+
+    @PostMapping("get-email-security")
+    public ClientResponseForSecurity getClientForSecurity(@RequestBody Integer id){
+        return clientService.getEmailForSecurity(id);
+    }
+
 
 }

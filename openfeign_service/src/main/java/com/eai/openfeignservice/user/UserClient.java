@@ -23,4 +23,8 @@ public interface UserClient {
     @GetMapping("get-clients-need-relanche")
     List<ClientResponseForRelanche> getClientForRelanche();
 
+    @PostMapping("get-email-security")
+    ClientResponseForSecurity getClientForSecurity(@RequestBody Integer id);
+
+
 }
