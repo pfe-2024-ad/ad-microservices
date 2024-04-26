@@ -6,6 +6,7 @@ import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.UserClient;
+import com.eai.securityservice.configuration.JwtUtil;
 import com.eai.securityservice.dto.OtpEmailCompareResponse;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import com.eai.securityservice.model.Counter;
@@ -17,6 +18,9 @@ import com.eai.securityservice.repository.CounterRepository;
 import com.eai.securityservice.repository.HistoryRepository;
 import com.eai.securityservice.repository.OtpRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -33,6 +37,11 @@ public class OtpEmailService {
     private final CounterRepository counterRepository;
     private final NotificationClient notificationClient;
     private final UserClient userClient;
+    private final JwtUtil jwtUtil;
+
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
 
@@ -111,22 +120,30 @@ public class OtpEmailService {
                     otp.setIdClient(idClient);
                     otpRepository.save(otp);
 
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(idClient.toString());
+                    String newGeneratedToken = jwtUtil.generateToken(userDetails, idClient);
+
+
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
                     otpEmailCompareResponse.setIdClient(idClient);
+                    otpEmailCompareResponse.setJwtToken(newGeneratedToken);
                     return otpEmailCompareResponse;
                 }else{
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.INVALID.getLabel());
                     otpEmailCompareResponse.setIdClient(null);
+                    otpEmailCompareResponse.setJwtToken(null);
                     return otpEmailCompareResponse;
                 }
             } else{
                 otpEmailCompareResponse.setStatusOtp(StatusOTP.EXPIRED_ATTEMPT.getLabel());
                 otpEmailCompareResponse.setIdClient(null);
+                otpEmailCompareResponse.setJwtToken(null);
                 return otpEmailCompareResponse;
             }
         } else {
             otpEmailCompareResponse.setStatusOtp(StatusOTP.TIMEOUT.getLabel());
             otpEmailCompareResponse.setIdClient(null);
+            otpEmailCompareResponse.setJwtToken(null);
             return otpEmailCompareResponse;
         }
     }
