@@ -100,12 +100,17 @@ public class OtpEmailService {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
 
-                Integer idClient = userClient.saveClient(otpEmailRequest);
+                Integer idClient = null;
                 otp.incrementAttempt();
                 otp.setIdClient(idClient);
                 otpRepository.save(otp);
 
                 if (isOtpValid) {
+
+                    idClient = userClient.saveClient(otpEmailRequest);
+                    otp.setIdClient(idClient);
+                    otpRepository.save(otp);
+
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
                     otpEmailCompareResponse.setIdClient(idClient);
                     return otpEmailCompareResponse;
