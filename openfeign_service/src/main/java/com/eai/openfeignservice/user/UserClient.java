@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
-@FeignClient(name = "client-service", path = "/agd/client-service")
+@FeignClient(name = "client-service", path = "/agd/client-service/api")
 public interface UserClient {
     @PostMapping("create-client")
     Integer saveClient(@RequestBody ClientRequest request);
@@ -22,5 +22,9 @@ public interface UserClient {
 
     @GetMapping("get-clients-need-relanche")
     List<ClientResponseForRelanche> getClientForRelanche();
+
+    @PostMapping("get-email-security")
+    ClientResponseForSecurity getClientForSecurity(@RequestBody Integer id);
+
 
 }

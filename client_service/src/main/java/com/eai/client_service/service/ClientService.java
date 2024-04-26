@@ -11,6 +11,7 @@ import com.eai.openfeignservice.relanche.RelancheClient;
 import com.eai.openfeignservice.relanche.RelancheRequest;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.ClientResponseForRelanche;
+import com.eai.openfeignservice.user.ClientResponseForSecurity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -167,6 +168,16 @@ public class ClientService {
             }
         }
         return clientResponse;
+    }
+
+    public ClientResponseForSecurity getEmailForSecurity(Integer id){
+        Client client = clientRepository.findById(id).get();
+        ClientResponseForSecurity clientResponseForSecurity = ClientResponseForSecurity.builder()
+                .idClient(client.getId())
+                .email(client.getEmail())
+                .build();
+        return clientResponseForSecurity;
+
     }
 
 

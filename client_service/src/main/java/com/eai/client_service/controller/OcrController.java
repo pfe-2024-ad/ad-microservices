@@ -15,7 +15,7 @@ public class OcrController {
     private final OcrService ocrService;
 
     @PostMapping
-    public ClientResponseOcrDto getCinInfos(@RequestParam MultipartFile file1, @RequestParam MultipartFile file2, @RequestParam MultipartFile file3, @RequestParam Integer id){
+    public Object getCinInfos(@RequestParam MultipartFile file1, @RequestParam MultipartFile file2, @RequestParam MultipartFile file3, @RequestParam Integer id){
 
         return ocrService.getCinInfos(file1, file2, file3, id);
     }
