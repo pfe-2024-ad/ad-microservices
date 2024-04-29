@@ -26,4 +26,17 @@ public class SecurityServiceEmailController {
 
        return emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
    }
+    @PostMapping("/send-exist-email")
+    public String sendEmailExist(@RequestBody EmailSender request){
+        String subject = "Agence directe : Avez-vous de la difficulté à ouvrir une session dans votre compte?";
+        String templatePath = "otpService/email/send-exist-email-template.html";
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("codeOtpEmail", request.getCodeOtpEmail());
+        variables.put("subject", subject);
+
+        return emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
+    }
+    }
+
 }
