@@ -37,6 +37,6 @@ public class SecurityServiceEmailController {
 
         return emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
     }
-    }
+
 
 }
