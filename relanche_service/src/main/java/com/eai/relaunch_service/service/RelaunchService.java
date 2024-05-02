@@ -1,5 +1,7 @@
 package com.eai.relaunch_service.service;
 
+import com.eai.openfeignservice.config.ConfigClient;
+import com.eai.openfeignservice.config.ParamDto;
 import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientResponseForRelanche;
@@ -27,9 +29,25 @@ public class RelaunchService {
 
     private final NotificationClient notificationClient;
 
-    @Scheduled(cron = "0 0 9 * * ?") //  9h mat tous les jours
+    private final ConfigClient configClient;
+
+
+    @Scheduled(fixedRate = 60000) //  9h mat tous les jours
     public void scheduledProcessRelaunch() {
-        processRelaunch();
+        String relauch_scheduConfig = getRelaunchScheduleCron();
+        if (relauch_scheduConfig != null) {
+            processRelaunch();
+        } else {
+            log.error("Failed to retrieve cron expression for scheduled relaunch.");
+        }
+
+    }
+
+    private String getRelaunchScheduleCron() {
+        ParamDto paramDto = ParamDto.builder()
+                .name("relauch_schedu")
+                .build();
+        return configClient.getParam(paramDto).getValue();
     }
 
     @Transactional
