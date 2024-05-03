@@ -15,7 +15,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -29,27 +33,29 @@ public class RelaunchService {
 
     private final NotificationClient notificationClient;
 
-    private final ConfigClient configClient;
+    private final ConfigClient relaunchConfigClient;
 
-
-    @Scheduled(fixedRate = 60000) //  9h mat tous les jours
+    @Scheduled(fixedRate = 3600000) // Exécute chaque heure
     public void scheduledProcessRelaunch() {
-        String relauch_scheduConfig = getRelaunchScheduleCron();
-        if (relauch_scheduConfig != null) {
+
+        LocalTime time = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedTime = time.format(formatter);
+
+        String RELAUNCH_SCHEDU_CONFIG = getRelaunchScheduleCron();
+
+        if(formattedTime.equals(RELAUNCH_SCHEDU_CONFIG)){
             processRelaunch();
-        } else {
-            log.error("Failed to retrieve cron expression for scheduled relaunch.");
         }
 
     }
 
     private String getRelaunchScheduleCron() {
         ParamDto paramDto = ParamDto.builder()
-                .name("relauch_schedu")
+                .name("RELAUNCH_SCHEDU")
                 .build();
-        return configClient.getParam(paramDto).getValue();
+        return relaunchConfigClient.getParam(paramDto).getValue();
     }
-
     @Transactional
     public void processRelaunch() {
 

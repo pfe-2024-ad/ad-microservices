@@ -19,7 +19,14 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private final ConfigClient configClient;
+    private final ConfigClient securityConfigClient;
+
+    //get SECRET_KEY_TOKEN from configuration service
+    ParamDto paramDto = ParamDto.builder()
+            .name("SECRET_KEY_TOKEN")
+            .build();
+    final String SECRET_KEY =securityConfigClient.getParam(paramDto).getValue();
+
 
     public String getEmailFromToken(String token) {
 
@@ -32,10 +39,6 @@ public class JwtUtil {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        ParamDto paramDto = ParamDto.builder()
-                .name("SECRET_KEY_PARAM")
-                .build();
-        final String SECRET_KEY = configClient.getParam(paramDto).getValue();
 
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
@@ -62,16 +65,12 @@ public class JwtUtil {
 
 
     public String generateToken(UserDetails userDetails, Integer idClient) {
-        ParamDto paramDto = ParamDto.builder()
-                .name("SECRET_KEY_PARAM")
-                .build();
-        final String SECRET_KEY = configClient.getParam(paramDto).getValue();
 
         ParamDto paramDto1 = ParamDto.builder()
                 .name("TOKEN_VALIDITY_PARAM")
                 .build();
 
-        final Integer TOKEN_VALIDITY = Integer.parseInt(configClient.getParam(paramDto1).getValue());
+        final Integer TOKEN_VALIDITY = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("tokenId",idClient);

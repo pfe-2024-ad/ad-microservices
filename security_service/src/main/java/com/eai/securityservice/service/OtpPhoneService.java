@@ -36,16 +36,20 @@ public class OtpPhoneService {
     private final NotificationClient notificationClient;
     private final UserClient userClient;
 
-    private final ConfigClient configClient;
-
-    private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
+    private final ConfigClient securityConfigClient;
 
     public String generateOtpPhone(@RequestBody OtpPhoneRequest otpPhoneRequest) {
         //get DATE_EXPIRATION from config service
         ParamDto paramDto = ParamDto.builder()
                 .name("DATE_EXPIRATION")
                 .build();
-        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(configClient.getParam(paramDto).getValue());
+        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
+
+        ParamDto paramDto3 = ParamDto.builder()
+                .name("NEW_DATE_GENERATION")
+                .build();
+        Integer NEW_DATE_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto3).getValue());
+
 
         String generatedOtp = generateOtp(counter.getCounter());
         History history = historyRepository.findTopByKeyPhoneAndNumPhoneOrderByDateGenerationDesc(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone());
@@ -74,7 +78,7 @@ public class OtpPhoneService {
             ParamDto paramDto1 = ParamDto.builder()
                     .name("NBR_GENERATION")
                     .build();
-            Integer NBR_GENERATION_CONFIG = Integer.parseInt(configClient.getParam(paramDto1).getValue());
+            Integer NBR_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
 
             if (history.getNumGeneration() < NBR_GENERATION_CONFIG) {
                 history.setCounter(counter.getCounter());
@@ -93,13 +97,11 @@ public class OtpPhoneService {
 
 
 
-            } else if (history.getNumGeneration() == NBR_GENERATION_CONFIG && isPast30Minutes(history.getDateGeneration()) > DATE_EXPIRATION_CONFIG) {
+            } else if ( isPast30Minutes(history.getDateGeneration()) >  NEW_DATE_GENERATION_CONFIG) {
                 history = new History(otpPhoneRequest.getKeyPhone(), otpPhoneRequest.getNumPhone(), counter.getCounter(), new Date());
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
                 otp.setAttempts(0);
-                otp.setKeyPhone(otpPhoneRequest.getKeyPhone());
-                otp.setNumPhone(otpPhoneRequest.getNumPhone());
                 if(Objects.equals(notificationClient.sendOtpSms(smsSender), "01")){
                     isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
                 }else{
@@ -124,14 +126,14 @@ public class OtpPhoneService {
         ParamDto paramDto = ParamDto.builder()
                 .name("DATE_EXPIRATION")
                 .build();
-        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(configClient.getParam(paramDto).getValue());
+        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
 
         if (isPast30Minutes(otp.getDateGeneration())<DATE_EXPIRATION_CONFIG) {
             //get maxAttemps from config service
             ParamDto paramDto1 = ParamDto.builder()
                     .name("MAX_ATTEMPTS")
                     .build();
-            Integer MAX_ATTEMPTS_CONFIG = Integer.parseInt(configClient.getParam(paramDto1).getValue());
+            Integer MAX_ATTEMPTS_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
             if (otp.getAttempts()<MAX_ATTEMPTS_CONFIG) {
                 Boolean isOtpValid = verifyOtp(otpPhoneRequest.getUserInput(), otp.getCounter());
                 otp.incrementAttempt();
@@ -155,13 +157,24 @@ public class OtpPhoneService {
 
     }
 
-    public boolean compareOtp( String userInput , Integer counter) {
-        ParamDto paramDto1 = ParamDto.builder()
-                .name("OTP_LENGTH")
-                .build();
-        Integer OTP_LENGTH_CONFIG = Integer.parseInt(configClient.getParam(paramDto1).getValue());
+    //GET OTP_LENGTH from configuration service
+    ParamDto paramDto1 = ParamDto.builder()
+            .name("OTP_LENGTH")
+            .build();
+    Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
 
-        HOTPGenerator hotp = new HOTPGenerator.Builder(SECRET_KEY_BYTES)
+    //GET SECRET_KEY_BYTES from configuration service
+    ParamDto paramDto2 = ParamDto.builder()
+            .name("SECRET_KEY_BYTES")
+            .build();
+    final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
+
+
+
+    public boolean compareOtp( String userInput , Integer counter) {
+
+
+        HOTPGenerator hotp = new HOTPGenerator.Builder(SECRET_KEY_BYTES_CONFIG)
                 .withPasswordLength(OTP_LENGTH_CONFIG)
                 .withAlgorithm(HMACAlgorithm.SHA256)
                 .build();
@@ -181,12 +194,9 @@ public class OtpPhoneService {
 
 
     public String generateOtp(Integer counter) {
-        ParamDto paramDto1 = ParamDto.builder()
-                .name("OTP_LENGTH")
-                .build();
-        Integer OTP_LENGTH_CONFIG = Integer.parseInt(configClient.getParam(paramDto1).getValue());
 
-        HOTPGenerator hotp = new HOTPGenerator.Builder(SECRET_KEY_BYTES)
+
+        HOTPGenerator hotp = new HOTPGenerator.Builder(SECRET_KEY_BYTES_CONFIG)
                 .withPasswordLength( OTP_LENGTH_CONFIG)
                 .withAlgorithm(HMACAlgorithm.SHA256)
                 .build();

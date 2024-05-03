@@ -36,9 +36,14 @@ public class OtpEmailService {
     private final NotificationClient notificationClient;
     private final UserClient userClient;
 
-    private final ConfigClient configClient;
+    private final ConfigClient securityConfigClient;
 
     public String generateOtpEmail(@RequestBody OtpEmailRequest otpEmailRequest ) {
+
+        ParamDto paramDto3 = ParamDto.builder()
+                .name("NEW_DATE_GENERATION")
+                .build();
+        Integer NEW_DATE_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto3).getValue());
 
 
         String generatedOtp = generateOtp(counter.getCounter());
@@ -63,7 +68,7 @@ public class OtpEmailService {
             ParamDto paramDto = ParamDto.builder()
                     .name("NBR_GENERATION")
                     .build();
-            Integer NBR_GENERATION_CONFIG = Integer.parseInt(configClient.getParam(paramDto).getValue());
+            Integer NBR_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
             if (history.getNumGeneration() < NBR_GENERATION_CONFIG ) {
                 history.setCounter(counter.getCounter());
                 history.setDateGeneration(new Date());
@@ -77,7 +82,9 @@ public class OtpEmailService {
                     isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                 }
 
-            } else if (history.getNumGeneration() == NBR_GENERATION_CONFIG  && isPast30Minutes(history.getDateGeneration()) > 1) {
+
+            } else if ( isPast30Minutes(history.getDateGeneration()) > NEW_DATE_GENERATION_CONFIG) {
+
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
@@ -107,13 +114,13 @@ public class OtpEmailService {
         ParamDto paramDto = ParamDto.builder()
                 .name("DATE_EXPIRATION")
                 .build();
-        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(configClient.getParam(paramDto).getValue());
+        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
         if (isPast30Minutes(otp.getDateGeneration()) < DATE_EXPIRATION_CONFIG ) {
             //get maxAttemps from config service
             ParamDto paramDto1 = ParamDto.builder()
                     .name("MAX_ATTEMPTS")
                     .build();
-            Integer MAX_ATTEMPTS_CONFIG = Integer.parseInt(configClient.getParam(paramDto1).getValue());
+            Integer MAX_ATTEMPTS_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
             if (otp.getAttempts() < MAX_ATTEMPTS_CONFIG) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
 
@@ -148,19 +155,22 @@ public class OtpEmailService {
         }
     }
 
+    //GET OTP_LENGTH from configuration service
+    ParamDto paramDto1 = ParamDto.builder()
+            .name("OTP_LENGTH")
+            .build();
+    Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+
+    //GET SECRET_KEY_BYTES from configuration service
+    ParamDto paramDto2 = ParamDto.builder()
+            .name("SECRET_KEY_BYTES")
+            .build();
+    final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
+
+
     public boolean compareOtp( String userInput , Integer counter) {
 
-        ParamDto paramDto1 = ParamDto.builder()
-                .name("OTP_LENGTH")
-                .build();
-        Integer OTP_LENGTH_CONFIG = Integer.parseInt(configClient.getParam(paramDto1).getValue());
-
-        ParamDto paramDto = ParamDto.builder()
-                .name("SECRET_KEY_BYTES")
-                .build();
-        final byte[] getSecretKeyBytesConfig = configClient.getParam(paramDto).getValue().getBytes();
-
-        HOTPGenerator hotp = new HOTPGenerator.Builder(getSecretKeyBytesConfig)
+        HOTPGenerator hotp = new HOTPGenerator.Builder( SECRET_KEY_BYTES_CONFIG)
                 .withPasswordLength( OTP_LENGTH_CONFIG)
                 .withAlgorithm(HMACAlgorithm.SHA256)
                 .build();
@@ -180,17 +190,7 @@ public class OtpEmailService {
 
     public String generateOtp(Integer counter) {
 
-        ParamDto paramDto1 = ParamDto.builder()
-                .name("OTP_LENGTH")
-                .build();
-        Integer OTP_LENGTH_CONFIG = Integer.parseInt(configClient.getParam(paramDto1).getValue());
-
-        ParamDto paramDto = ParamDto.builder()
-                .name("SECRET_KEY_BYTES")
-                .build();
-        final byte[] getSecretKeyBytesConfig = configClient.getParam(paramDto).getValue().getBytes();
-
-        HOTPGenerator hotp = new HOTPGenerator.Builder(getSecretKeyBytesConfig)
+        HOTPGenerator hotp = new HOTPGenerator.Builder( SECRET_KEY_BYTES_CONFIG)
                 .withPasswordLength( OTP_LENGTH_CONFIG)
                 .withAlgorithm(HMACAlgorithm.SHA256)
                 .build();
