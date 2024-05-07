@@ -45,7 +45,7 @@ public class ClientController {
 
     @PostMapping("check-client-if-exist")
     public Boolean isClientExist(@RequestBody ClientRequest clientRequest){
-       return clientService.isClientExist(clientRequest.getEmail());
+       return clientService.isClientExist(clientRequest);
     }
 
     @GetMapping("get-clients-need-relanche")
@@ -59,5 +59,8 @@ public class ClientController {
         return clientService.getEmailForSecurity(id);
     }
 
-
+    @PostMapping("get-client-step")
+    ClientResponseForSecurity getClientStep(@RequestBody ClientRequest request){
+       return clientService.getClientStep(request);
+    }
 }

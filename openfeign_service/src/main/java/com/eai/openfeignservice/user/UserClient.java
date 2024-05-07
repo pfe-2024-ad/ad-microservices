@@ -1,5 +1,6 @@
 package com.eai.openfeignservice.user;
 
+import com.eai.openfeignservice.notification.EmailSender;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,5 +27,12 @@ public interface UserClient {
     @PostMapping("get-email-security")
     ClientResponseForSecurity getClientForSecurity(@RequestBody Integer id);
 
+    @PostMapping("send-exist-email")
+    String sendEmailExist(@RequestBody EmailSender request);
 
+    @PostMapping("send-email-register")
+    String sendEmailRegister(@RequestBody EmailSender request);
+
+    @PostMapping("get-client-step")
+    ClientResponseForSecurity getClientStep(@RequestBody ClientRequest request);
 }

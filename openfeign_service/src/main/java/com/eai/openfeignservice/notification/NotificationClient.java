@@ -18,4 +18,10 @@ public interface NotificationClient {
     @PostMapping("/send-relaunch-email")
     String sendRelaunchEmail(@RequestBody EmailSender emailSender);
 
+    @PostMapping("send-exist-email")
+    String sendEmailExist(@RequestBody EmailSender request);
+
+    @PostMapping("send-email-login")
+    String sendEmailRegister(@RequestBody EmailSender request);
+
 }
