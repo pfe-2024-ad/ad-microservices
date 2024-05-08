@@ -78,7 +78,7 @@ public class OtpEmailService {
                     isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                 }
 
-            } else if (history.getNumGeneration() == 5 && isPast15Minutes(history.getDateGeneration()) > 1) {
+            } else if (history.getNumGeneration() == 5 && isPast15Minutes(history.getDateGeneration()) > 15) {
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
