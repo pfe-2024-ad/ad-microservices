@@ -8,6 +8,7 @@ import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
 import com.eai.openfeignservice.user.UserClient;
+import com.eai.securityservice.configuration.JwtUtil;
 import com.eai.securityservice.dto.OtpEmailCompareResponse;
 import com.eai.securityservice.dto.OtpEmailRequest;
 import com.eai.securityservice.model.Counter;
@@ -19,6 +20,9 @@ import com.eai.securityservice.repository.CounterRepository;
 import com.eai.securityservice.repository.HistoryRepository;
 import com.eai.securityservice.repository.OtpRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -35,10 +39,13 @@ public class OtpEmailService {
     private final CounterRepository counterRepository;
     private final NotificationClient notificationClient;
     private final UserClient userClient;
+    private final JwtUtil jwtUtil;
+
 
     private final ConfigClient securityConfigClient;
 
-    public String generateOtpEmail(@RequestBody OtpEmailRequest otpEmailRequest ) {
+    @Autowired
+    private UserDetailsService userDetailsService;
 
         ParamDto paramDto3 = ParamDto.builder()
                 .name("NEW_DATE_GENERATION")
@@ -46,13 +53,11 @@ public class OtpEmailService {
         Integer NEW_DATE_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto3).getValue());
 
 
-        String generatedOtp = generateOtp(counter.getCounter());
-        Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
-        History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
-        String isSent;
-        EmailSender emailSender = EmailSender.builder()
+    private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
+
+    public String generateOtpEmail(@RequestBody OtpEmailRequest otpEmailRequest ) {
+        ClientRequest clientRequest = ClientRequest.builder()
                 .email(otpEmailRequest.getEmail())
-                .codeOtpEmail(generatedOtp)
                 .build();
         if (otp == null) {
             history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
@@ -69,6 +74,7 @@ public class OtpEmailService {
                     .name("NBR_GENERATION")
                     .build();
             Integer NBR_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
+          
             if (history.getNumGeneration() < NBR_GENERATION_CONFIG ) {
                 history.setCounter(counter.getCounter());
                 history.setDateGeneration(new Date());
@@ -85,24 +91,66 @@ public class OtpEmailService {
 
             } else if ( isPast30Minutes(history.getDateGeneration()) > NEW_DATE_GENERATION_CONFIG) {
 
+
+        String isSent;
+        boolean isClientExist = userClient.isClientExist(clientRequest);
+
+        if (!isClientExist) {
+            String generatedOtp = generateOtp(counter.getCounter());
+            Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+            History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
+            EmailSender emailSender = EmailSender.builder()
+                    .email(otpEmailRequest.getEmail())
+                    .codeOtpEmail(generatedOtp)
+                    .build();
+            if (otp == null) {
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-                otp.setCounter(counter.getCounter());
-                otp.setDateGeneration(new Date());
-                otp.setAttempts(0);
+                otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
                     isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
                 }else{
                     isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                 }
-            } else {
-                isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
-            }
-        }
 
-        otpRepository.save(otp);
-        historyRepository.save(history);
-        counter.incrementCounter();
-        counterRepository.save(counter);
+            } else {
+                if (history.getNumGeneration() < 5) {
+                    history.setCounter(counter.getCounter());
+                    history.setDateGeneration(new Date());
+                    history.incrementNumGeneration();
+                    otp.setCounter(counter.getCounter());
+                    otp.setDateGeneration(new Date());
+                    otp.setAttempts(0);
+                    if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
+                        isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                    }else{
+                        isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                    }
+
+                } else if (isPast30Minutes(history.getDateGeneration()) > 1) {
+                    history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
+                    otp.setCounter(counter.getCounter());
+                    otp.setDateGeneration(new Date());
+                    otp.setAttempts(0);
+                    if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
+                        isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                    }else{
+                        isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                    }
+                } else {
+                    isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
+                }
+            }
+
+            otpRepository.save(otp);
+            historyRepository.save(history);
+            counter.incrementCounter();
+            counterRepository.save(counter);
+        }else {
+            EmailSender emailSender = EmailSender.builder()
+                    .email(otpEmailRequest.getEmail())
+                    .build();
+            isSent = notificationClient.sendEmailExist(emailSender);
+        }
         return isSent;
     }
 
@@ -135,22 +183,30 @@ public class OtpEmailService {
                     otp.setIdClient(idClient);
                     otpRepository.save(otp);
 
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(idClient.toString());
+                    String newGeneratedToken = jwtUtil.generateToken(userDetails, idClient);
+
+
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
                     otpEmailCompareResponse.setIdClient(idClient);
+                    otpEmailCompareResponse.setJwtToken(newGeneratedToken);
                     return otpEmailCompareResponse;
                 }else{
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.INVALID.getLabel());
                     otpEmailCompareResponse.setIdClient(null);
+                    otpEmailCompareResponse.setJwtToken(null);
                     return otpEmailCompareResponse;
                 }
             } else{
                 otpEmailCompareResponse.setStatusOtp(StatusOTP.EXPIRED_ATTEMPT.getLabel());
                 otpEmailCompareResponse.setIdClient(null);
+                otpEmailCompareResponse.setJwtToken(null);
                 return otpEmailCompareResponse;
             }
         } else {
             otpEmailCompareResponse.setStatusOtp(StatusOTP.TIMEOUT.getLabel());
             otpEmailCompareResponse.setIdClient(null);
+            otpEmailCompareResponse.setJwtToken(null);
             return otpEmailCompareResponse;
         }
     }
