@@ -1,5 +1,6 @@
 package com.eai.notification_service.controller;
 
+import com.eai.notification_service.service.DemandeService;
 import com.eai.notification_service.service.EmailSenderService;
 import com.eai.openfeignservice.notification.EmailSender;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import java.util.Map;
 public class SecurityServiceEmailController {
 
     private final EmailSenderService emailSenderService;
+    private final DemandeService demandeService;
+
 
    @PostMapping("/send-email")
    public String sendOtpEmail(@RequestBody EmailSender request) {
@@ -28,24 +31,12 @@ public class SecurityServiceEmailController {
    }
 
     @PostMapping("/send-exist-email")
-    public String sendEmailExist(@RequestBody EmailSender request){
-        String subject = "Agence directe : Avez-vous de la difficulté à ouvrir une session dans votre compte?";
-        String templatePath = "otpService/email/send-exist-email-template.html";
-
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("codeOtpEmail", request.getCodeOtpEmail());
-        variables.put("subject", subject);
-
-        return emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
+    public String sendEmailExist(@RequestBody EmailSender emailSender) {
+        return demandeService.sendEmailExist(emailSender);
     }
 
     @PostMapping("/send-email-login")
-    public String sendEmailRegister(@RequestBody EmailSender request){
-        String subject = "Agence directe : Avez-vous de la difficulté à ouvrir une session dans votre compte?";
-        String templatePath = "otpService/email/send-login-template.html";
-
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("subject", subject);
-
-        return emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);    }
+    public String sendEmailRegister(@RequestBody EmailSender emailSender) {
+        return demandeService.sendEmailRegister(emailSender);
+    }
 }

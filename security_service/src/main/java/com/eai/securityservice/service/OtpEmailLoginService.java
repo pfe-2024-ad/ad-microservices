@@ -101,7 +101,6 @@ public class OtpEmailLoginService {
             historyRepository.save(history);
             counter.incrementCounter();
             counterRepository.save(counter);
-            System.out.println(generatedOtp);
         }
         return isSent;
     }
@@ -122,7 +121,6 @@ public class OtpEmailLoginService {
                     ClientRequest clientRequest = ClientRequest.builder()
                             .email(otpEmailRequest.getEmail())
                             .build();
-                    System.out.println(clientRequest);
                     ClientResponseForSecurity identityClient =  userClient.getClientStep(clientRequest);
                     otp.setIdClient(identityClient.getIdClient());
                     otpRepository.save(otp);
