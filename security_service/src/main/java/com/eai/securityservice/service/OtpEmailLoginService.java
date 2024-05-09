@@ -5,6 +5,7 @@ import com.bastiaanjansen.otp.HOTPGenerator;
 import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientRequest;
+import com.eai.openfeignservice.user.ClientResponseForSecurity;
 import com.eai.openfeignservice.user.UserClient;
 import com.eai.securityservice.configuration.JwtUtil;
 import com.eai.securityservice.dto.OtpEmailCompareResponse;
@@ -30,7 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class OtpEmailService {
+public class OtpEmailLoginService {
+
     private final OtpRepository otpRepository;
     private final HistoryRepository historyRepository;
     private final Counter counter;
@@ -47,24 +49,27 @@ public class OtpEmailService {
 
     public String generateOtpEmail(@RequestBody OtpEmailRequest otpEmailRequest ) {
 
-        String generatedOtp = generateOtp(counter.getCounter());
-        Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
-        History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
-        String isSent;
-        EmailSender emailSender = EmailSender.builder()
+        ClientRequest clientRequest = ClientRequest.builder()
                 .email(otpEmailRequest.getEmail())
-                .codeOtpEmail(generatedOtp)
                 .build();
-        if (otp == null) {
-            history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-            otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-            if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
-                isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
-            }else{
-                isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
-            }
+        String isSent ;
+        boolean isClientExist = userClient.isClientExist(clientRequest);
 
-        } else {
+        if (!isClientExist) {
+            EmailSender emailSender = EmailSender.builder()
+                    .email(otpEmailRequest.getEmail())
+                    .build();
+
+            isSent = notificationClient.sendEmailRegister(emailSender);
+
+        }else{
+            String generatedOtp = generateOtp(counter.getCounter());
+            Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+            History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
+            EmailSender emailSender = EmailSender.builder()
+                    .email(otpEmailRequest.getEmail())
+                    .codeOtpEmail(generatedOtp)
+                    .build();
             if (history.getNumGeneration() < 5) {
                 history.setCounter(counter.getCounter());
                 history.setDateGeneration(new Date());
@@ -78,7 +83,7 @@ public class OtpEmailService {
                     isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                 }
 
-            } else if (history.getNumGeneration() == 5 && isPast15Minutes(history.getDateGeneration()) > 15) {
+            } else if (isPast30Minutes(history.getDateGeneration()) > 30) {
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
@@ -91,22 +96,19 @@ public class OtpEmailService {
             } else {
                 isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
             }
+            otpRepository.save(otp);
+            historyRepository.save(history);
+            counter.incrementCounter();
+            counterRepository.save(counter);
         }
-
-        otpRepository.save(otp);
-        historyRepository.save(history);
-        counter.incrementCounter();
-        counterRepository.save(counter);
-        System.out.println(generatedOtp);
         return isSent;
-
     }
 
     public OtpEmailCompareResponse CompareOtpEmailResponse(@RequestBody ClientRequest otpEmailRequest) {
 
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
         OtpEmailCompareResponse otpEmailCompareResponse = new OtpEmailCompareResponse();
-        if (isPast15Minutes(otp.getDateGeneration()) < 15) {
+        if (isPast30Minutes(otp.getDateGeneration()) < 30) {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
 
@@ -114,20 +116,21 @@ public class OtpEmailService {
                 otp.incrementAttempt();
                 otp.setIdClient(idClient);
                 otpRepository.save(otp);
-
                 if (isOtpValid) {
-
-                    idClient = userClient.saveClient(otpEmailRequest);
-                    otp.setIdClient(idClient);
+                    ClientRequest clientRequest = ClientRequest.builder()
+                            .email(otpEmailRequest.getEmail())
+                            .build();
+                    ClientResponseForSecurity identityClient =  userClient.getClientStep(clientRequest);
+                    otp.setIdClient(identityClient.getIdClient());
                     otpRepository.save(otp);
 
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(idClient.toString());
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(identityClient.getIdClient().toString());
                     String newGeneratedToken = jwtUtil.generateToken(userDetails, idClient);
-
 
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
                     otpEmailCompareResponse.setIdClient(idClient);
                     otpEmailCompareResponse.setJwtToken(newGeneratedToken);
+                    otpEmailCompareResponse.setStep(identityClient.getClientStep());
                     return otpEmailCompareResponse;
                 }else{
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.INVALID.getLabel());
@@ -163,7 +166,7 @@ public class OtpEmailService {
     }
 
 
-    private long isPast15Minutes(Date date) {
+    private long isPast30Minutes(Date date) {
         long diffInMilliseconds = new Date().getTime() - date.getTime();
         return TimeUnit.MILLISECONDS.toMinutes(diffInMilliseconds);
     }
@@ -181,3 +184,4 @@ public class OtpEmailService {
     }
 
 }
+

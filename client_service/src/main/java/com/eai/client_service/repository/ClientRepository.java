@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface ClientRepository extends JpaRepository<Client, Integer> {
     Client findByEmailAndClientStatusIn(String email, List<ClientStatus> statuses);
+
+    Client findByEmail(String email);
 }
