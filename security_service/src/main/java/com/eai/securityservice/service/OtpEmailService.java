@@ -47,6 +47,7 @@ public class OtpEmailService {
 
     public String generateOtpEmail(@RequestBody OtpEmailRequest otpEmailRequest ) {
 
+
         String generatedOtp = generateOtp(counter.getCounter());
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
         History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
@@ -78,7 +79,7 @@ public class OtpEmailService {
                     isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                 }
 
-            } else if (history.getNumGeneration() == 5 && isPast15Minutes(history.getDateGeneration()) > 15) {
+            } else if (history.getNumGeneration() == 5 && isPast15Minutes(history.getDateGeneration()) > 1) {
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 otp.setCounter(counter.getCounter());
                 otp.setDateGeneration(new Date());
@@ -97,9 +98,7 @@ public class OtpEmailService {
         historyRepository.save(history);
         counter.incrementCounter();
         counterRepository.save(counter);
-        System.out.println(generatedOtp);
         return isSent;
-
     }
 
     public OtpEmailCompareResponse CompareOtpEmailResponse(@RequestBody ClientRequest otpEmailRequest) {
