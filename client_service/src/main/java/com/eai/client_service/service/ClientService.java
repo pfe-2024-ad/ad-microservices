@@ -154,7 +154,6 @@ public class ClientService {
                 .idClient(client.getId())
                 .clientStep(client.getClientStep().toString())
                 .build();
-        System.out.println(clientRequest);
         return clientRequest;
     }
 
