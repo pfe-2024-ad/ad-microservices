@@ -13,4 +13,5 @@ public class OtpEmailCompareResponse {
     private String statusOtp;
     private Integer idClient;
     private String jwtToken;
+    private String Step;
 }
