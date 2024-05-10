@@ -46,60 +46,69 @@ public class OtpEmailService {
     private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
 
     public String generateOtpEmail(@RequestBody OtpEmailRequest otpEmailRequest ) {
-
-        String generatedOtp = generateOtp(counter.getCounter());
-        Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
-        History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
-        String isSent;
-        EmailSender emailSender = EmailSender.builder()
+        ClientRequest clientRequest = ClientRequest.builder()
                 .email(otpEmailRequest.getEmail())
-                .codeOtpEmail(generatedOtp)
                 .build();
-        if (otp == null) {
-            history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-            otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-            if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
-                isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
-            }else{
-                isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
-            }
+        String isSent;
+        boolean isClientExist = userClient.isClientExist(clientRequest);
 
-        } else {
-            if (history.getNumGeneration() < 5) {
-                history.setCounter(counter.getCounter());
-                history.setDateGeneration(new Date());
-                history.incrementNumGeneration();
-                otp.setCounter(counter.getCounter());
-                otp.setDateGeneration(new Date());
-                otp.setAttempts(0);
-                if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
-                    isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
-                }else{
-                    isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
-                }
-
-            } else if (history.getNumGeneration() == 5 && isPast15Minutes(history.getDateGeneration()) > 15) {
+        if (!isClientExist) {
+            String generatedOtp = generateOtp(counter.getCounter());
+            Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
+            History history = historyRepository.findTopByEmailOrderByDateGenerationDesc(otpEmailRequest.getEmail());
+            EmailSender emailSender = EmailSender.builder()
+                    .email(otpEmailRequest.getEmail())
+                    .codeOtpEmail(generatedOtp)
+                    .build();
+            if (otp == null) {
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-                otp.setCounter(counter.getCounter());
-                otp.setDateGeneration(new Date());
-                otp.setAttempts(0);
+                otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
                     isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
                 }else{
                     isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                 }
+
             } else {
-                isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
+                if (history.getNumGeneration() < 5) {
+                    history.setCounter(counter.getCounter());
+                    history.setDateGeneration(new Date());
+                    history.incrementNumGeneration();
+                    otp.setCounter(counter.getCounter());
+                    otp.setDateGeneration(new Date());
+                    otp.setAttempts(0);
+                    if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
+                        isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                    }else{
+                        isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                    }
+
+                } else if (isPast15Minutes(history.getDateGeneration()) > 15) {
+                    history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
+                    otp.setCounter(counter.getCounter());
+                    otp.setDateGeneration(new Date());
+                    otp.setAttempts(0);
+                    if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
+                        isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
+                    }else{
+                        isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                    }
+                } else {
+                    isSent = OtpGenerationStatusEnum.MAX_GENERATED_OTP_ERROR.getLabel();
+                }
             }
+
+            otpRepository.save(otp);
+            historyRepository.save(history);
+            counter.incrementCounter();
+            counterRepository.save(counter);
+        }else {
+            EmailSender emailSender = EmailSender.builder()
+                    .email(otpEmailRequest.getEmail())
+                    .build();
+            isSent = notificationClient.sendEmailExist(emailSender);
         }
-
-        otpRepository.save(otp);
-        historyRepository.save(history);
-        counter.incrementCounter();
-        counterRepository.save(counter);
-        System.out.println(generatedOtp);
         return isSent;
-
     }
 
     public OtpEmailCompareResponse CompareOtpEmailResponse(@RequestBody ClientRequest otpEmailRequest) {
