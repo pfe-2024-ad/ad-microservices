@@ -24,4 +24,7 @@ public interface NotificationClient {
     @PostMapping("send-email-login")
     String sendEmailRegister(@RequestBody EmailSender request);
 
+    @PostMapping("send-contact-email")
+    String sendContactEmail(@RequestBody EmailSender request);
+
 }
