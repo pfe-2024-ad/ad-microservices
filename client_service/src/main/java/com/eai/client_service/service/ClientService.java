@@ -130,9 +130,14 @@ public class ClientService {
                     .status(OcrStatus.SUCCESSFUL.getLabel())
                     .nom(client.getNom())
                     .prenom(client.getPrenom())
+                    .email(client.getEmail())
+                    .phone(client.getIndicatifTel()+client.getNumTel())
                     .cin(client.getCin())
                     .dateNaissance(client.getDateNaissance())
                     .adresseResidence(client.getAdresseResidence())
+                    .ville(client.getVille())
+                    .agence(client.getAdresseAgence()+" "+client.getVilleAgence())
+                    .pack(client.getPack().getNomPack())
                     .build();
             return clientResponseOcrDto;
         } else {
