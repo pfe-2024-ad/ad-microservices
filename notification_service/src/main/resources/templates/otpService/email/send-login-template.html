@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Vérification de Connexion - Pour Agence Directe</title>
+    <style>
+        table {
+            font-family: Arial, sans-serif;
+            margin: 0 auto;
+            background-color: #ffffff;
+            color: #000;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 20px 10px 20px rgba(0.2, 0.2, 0.2, 0.1) !important;
+            text-align: center; /* Center align the content */
+
+        }
+        th {
+            background-color: #033D7C !important;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 0 10px 0;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+
+        td{
+            padding: 0px 20px 5px 20px;
+            text-align: center; /* Center align the content */
+        }
+
+        .social-icons {
+            text-align: center;
+        }
+
+        .social-icons a {
+            display: inline-block;
+            margin: 0 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icons img {
+            width: 30px;
+            margin-right: 10px;
+        }
+
+
+        a {
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+
+    </style>
+</head>
+<body style="background-color:#EFEFEF; padding: 15px 0 15px 0; "  >
+<table>
+
+    <thead>
+    <tr>
+        <th>&nbsp;
+
+            <img src="https://i.imgur.com/F8ugSsC.png" alt="Bank of Africa Logo" style="width: 250px;" />
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <h2 style=" color: #000;">Avez-vous de la difficulté à ouvrir une session dans votre compte?</h2>
+            <p style="font-size: 20px; color:#11A5AE;"><strong><span th:text="${codeOtpEmail}"></span></strong></b></p>
+            <p style="margin-bottom: 15px; font-size: 15px;">Nous regrettons de vous informer que l'adresse e-mail que vous avez fournie lors de votre tentative de connexion n'est pas enregistrée dans notre système. Ne vous inquiétez pas ! Pour bénéficier d'une expérience sans faille, nous vous invitons à vous inscrire pour créer votre compte en utilisant le lien <strong><a th:href="@{https://www.agencedirecte.ma/fr/banque-en-ligne}">S'inscrire</a>.</strong></p>
+            <p style="margin-bottom: 15px; font-size: 15px;">Si vous ne reconnaissez pas cette activité, veuillez contacter immédiatement le support client.</p>
+            <p><strong><a href="https://agencedirecte.ma/fr/contact" style="font-size: 20px; color: #033D7C;">Contacter le Support Client</a></strong></p>
+            <p style="margin-bottom: 15px; font-size: 15px;">Ceci est un message automatisé, veuillez ne pas répondre.</p>
+            <hr>
+            <p style="text-align: center;font-size: 20px; font-weight: bold; color: #033D7C;"><strong>Rester connecté !</strong></p>
+            <div class="social-icons">
+                <a href="https://twitter.com/Bank_OfAfrica"><img src="https://public.bnbstatic.com/image/social/twitter-dark.png" alt="Twitter"></a>
+                <a href="https://web.facebook.com/BMCEBankOfAfrica"><img src="https://public.bnbstatic.com/image/social/facebook-dark.png" alt="Facebook"></a>
+                <a href="https://www.linkedin.com/company/bank-of-africa-bmce-group/"><img src="https://public.bnbstatic.com/image/social/linkedin-dark.png" alt="LinkedIn"></a>
+                <a href="https://www.youtube.com/c/BMCEBankOfAfrica"><img src="https://public.bnbstatic.com/image/social/youtube-dark.png" alt="YouTube"></a>
+                <a href="https://instagram.com/bank_of_africa/"><img src="https://public.bnbstatic.com/image/social/instagram-dark.png" alt="Instagram"></a>
+            </div>
+            <hr>
+            <p style="text-align: center; color: black;"> &copy; <strong>2024 BANK OF AFRICA. Tous droits réservés</strong></p>
+        </td>
+    </tr>
+    <tbody>
+</table>
+
+</body>
+</html>

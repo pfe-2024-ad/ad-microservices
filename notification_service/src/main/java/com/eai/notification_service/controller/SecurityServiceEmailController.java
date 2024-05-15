@@ -1,5 +1,6 @@
 package com.eai.notification_service.controller;
 
+import com.eai.notification_service.service.DemandeService;
 import com.eai.notification_service.service.EmailSenderService;
 import com.eai.openfeignservice.notification.EmailSender;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class SecurityServiceEmailController {
 
     private final EmailSenderService emailSenderService;
+    private final DemandeService demandeService;
 
    @PostMapping("/send-email")
    public String sendOtpEmail(@RequestBody EmailSender request) {
@@ -26,4 +28,15 @@ public class SecurityServiceEmailController {
 
        return emailSenderService.sendOtpEmail(request.getEmail(), subject, variables, templatePath);
    }
+    @PostMapping("/send-exist-email")
+    public String sendEmailExist(@RequestBody EmailSender emailSender) {
+        return demandeService.sendEmailExist(emailSender);
+    }
+
+    @PostMapping("/send-email-login")
+    public String sendEmailRegister(@RequestBody EmailSender emailSender) {
+        return demandeService.sendEmailRegister(emailSender);
+    }
+
+
 }

@@ -35,7 +35,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         httpSecurity.cors();
 
         httpSecurity.csrf().disable()
-                .authorizeRequests().antMatchers("/otp_email/generate", "/otp_email/compare").permitAll()
+                .authorizeRequests().antMatchers("/otp_email/generate", "/otp_email/compare", "/otp_email/login/generate", "/otp_email/login/compare").permitAll()
 
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
 

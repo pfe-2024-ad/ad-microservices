@@ -12,10 +12,16 @@ public interface NotificationClient {
     @PostMapping("send-email")
     String sendOtpEmail(@RequestBody EmailSender request);
 
+    @PostMapping("send-exist-email")
+    String sendEmailExist(@RequestBody EmailSender request);
+
     @PostMapping("send-sms")
     String sendOtpSms(@RequestBody SmsSender request);
 
     @PostMapping("/send-relaunch-email")
     String sendRelaunchEmail(@RequestBody EmailSender emailSender);
+
+    @PostMapping("send-email-login")
+    String sendEmailRegister(@RequestBody EmailSender request);
 
 }
