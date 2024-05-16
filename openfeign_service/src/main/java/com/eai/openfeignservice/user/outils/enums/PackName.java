@@ -9,6 +9,7 @@ public enum PackName {
     AUTO_ENTREPRENEUR,
     CLASSIC,
     BLEU,
-    FIRST
+    FIRST,
+    AUCUN
 
 }
