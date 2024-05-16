@@ -130,9 +130,14 @@ public class ClientService {
                     .status(OcrStatus.SUCCESSFUL.getLabel())
                     .nom(client.getNom())
                     .prenom(client.getPrenom())
+                    .email(client.getEmail())
+                    .phone(client.getIndicatifTel()+client.getNumTel())
                     .cin(client.getCin())
                     .dateNaissance(client.getDateNaissance())
                     .adresseResidence(client.getAdresseResidence())
+                    .ville(client.getVille())
+                    .agence(client.getAdresseAgence()+" "+client.getVilleAgence())
+                    .pack(client.getPack().getNomPack())
                     .build();
             return clientResponseOcrDto;
         } else {
@@ -141,18 +146,21 @@ public class ClientService {
     }
 
 
-    public Boolean isClientExist(String email){
+    public Boolean isClientExist(ClientRequest request){
 
-        List<ClientStatus> statuses = Arrays.asList(
-                ClientStatus.PRE_PROSPECT,
-                ClientStatus.PROSPECT,
-                ClientStatus.PROSPECT_FINALISE,
-                ClientStatus.EQUIPPED
-        );
-        Client client = clientRepository.findByEmailAndClientStatusIn(email, statuses);
-
+        Client client = clientRepository.findByEmail(request.getEmail());
         return client != null;
 
+    }
+
+    public ClientResponseForSecurity getClientStep(ClientRequest request){
+        Client client = clientRepository.findByEmail(request.getEmail());
+        ClientResponseForSecurity clientRequest = ClientResponseForSecurity.builder()
+                .idClient(client.getId())
+                .clientStep(client.getClientStep().toString())
+                .build();
+        System.out.println(clientRequest);
+        return clientRequest;
     }
 
     public List<ClientResponseForRelanche> getClientForRelanche(){

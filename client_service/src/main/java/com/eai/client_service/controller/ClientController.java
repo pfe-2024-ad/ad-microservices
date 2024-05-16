@@ -1,6 +1,7 @@
 package com.eai.client_service.controller;
 
 import com.eai.client_service.dto.InfoClientRequest;
+import com.eai.client_service.dto.mocks.ocr.ClientResponseOcrDto;
 import com.eai.client_service.service.ClientService;
 import com.eai.openfeignservice.user.ClientRequest;
 
@@ -45,7 +46,7 @@ public class ClientController {
 
     @PostMapping("check-client-if-exist")
     public Boolean isClientExist(@RequestBody ClientRequest clientRequest){
-       return clientService.isClientExist(clientRequest.getEmail());
+        return clientService.isClientExist(clientRequest);
     }
 
     @GetMapping("get-clients-need-relanche")
@@ -57,6 +58,16 @@ public class ClientController {
     @PostMapping("get-email-security")
     public ClientResponseForSecurity getClientForSecurity(@RequestBody Integer id){
         return clientService.getEmailForSecurity(id);
+    }
+
+    @PostMapping("get-client-step")
+    ClientResponseForSecurity getClientStep(@RequestBody ClientRequest request){
+        return clientService.getClientStep(request);
+    }
+
+    @PostMapping("get-client")
+    public ClientResponseOcrDto getClient(@RequestBody ClientRequest request) {
+        return clientService.getClient(request.getIdClient());
     }
 
 

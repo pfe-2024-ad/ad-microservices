@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class ClientResponseForSecurity {
     private Integer idClient;
     private String email;
+    private String clientStep;
 }

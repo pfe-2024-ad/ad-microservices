@@ -21,4 +21,7 @@ public interface NotificationClient {
     @PostMapping("/send-relaunch-email")
     String sendRelaunchEmail(@RequestBody EmailSender emailSender);
 
+    @PostMapping("send-email-login")
+    String sendEmailRegister(@RequestBody EmailSender request);
+
 }
