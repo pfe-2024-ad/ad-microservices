@@ -31,4 +31,6 @@ public class ClientRequest {
     private String indicatifTel;
     private String numTel;
 
+    private ClientStep step;
+
 }

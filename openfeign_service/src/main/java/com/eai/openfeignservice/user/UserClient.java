@@ -35,4 +35,11 @@ public interface UserClient {
 
     @PostMapping("get-client-step")
     ClientResponseForSecurity getClientStep(@RequestBody ClientRequest request);
+
+    @PostMapping("set-client-step")
+    void setClientStep(@RequestBody ClientRequest request);
+
+    @PostMapping("get-client-for-payment")
+    ClientResponseForPayment getClientForPayment(@RequestBody Integer id);
+
 }

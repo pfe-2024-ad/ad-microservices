@@ -10,13 +10,18 @@ import com.eai.client_service.repository.PackRepository;
 import com.eai.openfeignservice.relanche.RelancheClient;
 import com.eai.openfeignservice.relanche.RelancheRequest;
 import com.eai.openfeignservice.user.ClientRequest;
+import com.eai.openfeignservice.user.ClientResponseForPayment;
 import com.eai.openfeignservice.user.ClientResponseForRelanche;
 import com.eai.openfeignservice.user.ClientResponseForSecurity;
+import com.eai.openfeignservice.user.outils.enums.ClientProfil;
+import com.eai.openfeignservice.user.outils.enums.ClientStep;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +38,15 @@ public class ClientService {
     public Integer saveClient(ClientRequest clientRequest){
         ClientStatus status = ClientStatus.PRE_PROSPECT;
         ClientStep clientStep = ClientStep.EMAIL_STEP;
-        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil(), clientStep);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateCreation = dateFormat.format(new Date());
+        String country;
+        if(clientRequest.getProfil() != ClientProfil.MRE){
+            country = "Maroc";
+        } else {
+            country = "Autre";
+        }
+        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil(), clientStep, dateCreation, country);
 
         Pack pack = new Pack(clientRequest.getNomPack(), clientRequest.getTypePack(), clientRequest.getOffres(), clientRequest.getNomCarte(),
                 clientRequest.getSendCarte(), clientRequest.getServices());
@@ -76,8 +89,7 @@ public class ClientService {
         if (clientOptional.isPresent()) {
             Client client = clientOptional.get(); // Extracting the Client object from Optional
           
-            client.setClientStep(ClientStep.OCR_STEP);
-
+            client.setClientStep(infoClientRequest.getStep());
             client.setNom(infoClientRequest.getNom());
             client.setPrenom(infoClientRequest.getPrenom());
             client.setDateNaissance(infoClientRequest.getDateNaissance());
@@ -185,6 +197,34 @@ public class ClientService {
                 .build();
         return clientResponseForSecurity;
 
+    }
+
+    public void setNewStep(Integer idClient, ClientStep step){
+        Client client = clientRepository.findClientById(idClient);
+        client.setClientStep(step);
+        clientRepository.save(client);
+    }
+
+    public ClientResponseForPayment getClientForPayment(Integer id){
+        Optional<Client> clientOptional = clientRepository.findById(id);
+        if (clientOptional.isPresent()) {
+            Client client = clientOptional.get(); // Extracting the Client object from Optional
+            ClientResponseForPayment clientResponseForPayment = ClientResponseForPayment.builder()
+                    .idClient(id)
+                    .email(client.getEmail())
+                    .nom(client.getNom())
+                    .prenom(client.getPrenom())
+                    .numTel(client.getIndicatifTel()+client.getNumTel())
+                    .adresseResidence(client.getAdresseResidence())
+                    .ville(client.getVille())
+                    .codePostal(client.getCodePostal())
+                    .dateCreation(client.getDateCreation())
+                    .country(client.getCountry())
+                    .build();
+            return clientResponseForPayment;
+        } else {
+            return null;
+        }
     }
 
 
