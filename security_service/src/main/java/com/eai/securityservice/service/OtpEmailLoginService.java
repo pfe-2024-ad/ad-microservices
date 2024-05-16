@@ -111,8 +111,8 @@ public class OtpEmailLoginService {
         if (isPast30Minutes(otp.getDateGeneration()) < 30) {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
+                Integer idClient = otp.getIdClient();
 
-                Integer idClient = null;
                 otp.incrementAttempt();
                 otp.setIdClient(idClient);
                 otpRepository.save(otp);
@@ -128,7 +128,8 @@ public class OtpEmailLoginService {
                     String newGeneratedToken = jwtUtil.generateToken(userDetails, idClient);
 
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
-                    otpEmailCompareResponse.setIdClient(idClient);
+                    otpEmailCompareResponse.setIdClient(identityClient.getIdClient());
+
                     otpEmailCompareResponse.setJwtToken(newGeneratedToken);
                     otpEmailCompareResponse.setStep(identityClient.getClientStep());
                     return otpEmailCompareResponse;
