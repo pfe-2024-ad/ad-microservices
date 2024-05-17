@@ -35,6 +35,16 @@ spring:
           uri: lb://CONFIGURATION-SERVICE
           predicates:
             - Path=/agd/configuration-service/**
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/agd/payment-service/payment/**
+          filters:
+            - AuthenticationFilter
+        - id: payment-service-cmi
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/agd/payment-service/cmi/**
       globalcors:
         cors-configurations:
           '[/**]':
