@@ -1,5 +1,7 @@
 package com.eai.relaunch_service.service;
 
+import com.eai.openfeignservice.config.ConfigClient;
+import com.eai.openfeignservice.config.ParamDto;
 import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
 import com.eai.openfeignservice.user.ClientResponseForRelanche;
@@ -13,7 +15,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,11 +33,29 @@ public class RelaunchService {
 
     private final NotificationClient notificationClient;
 
-    @Scheduled(cron = "0 0 9 * * ?") //  9h mat tous les jours
+    private final ConfigClient relaunchConfigClient;
+
+    @Scheduled(fixedRate = 3600000) // Exécute chaque heure
     public void scheduledProcessRelaunch() {
-        processRelaunch();
+
+        LocalTime time = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedTime = time.format(formatter);
+
+        String RELAUNCH_SCHEDU_CONFIG = getRelaunchScheduleCron();
+
+        if(formattedTime.equals(RELAUNCH_SCHEDU_CONFIG)){
+            processRelaunch();
+        }
+
     }
 
+    private String getRelaunchScheduleCron() {
+        ParamDto paramDto = ParamDto.builder()
+                .name("RELAUNCH_SCHEDU")
+                .build();
+        return relaunchConfigClient.getParam(paramDto).getValue();
+    }
     @Transactional
     public void processRelaunch() {
 
