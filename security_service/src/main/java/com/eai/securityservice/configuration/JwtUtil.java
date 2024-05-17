@@ -21,11 +21,7 @@ public class JwtUtil {
 
     private final ConfigClient securityConfigClient;
 
-    //get SECRET_KEY_TOKEN from configuration service
-    ParamDto paramDto = ParamDto.builder()
-            .name("SECRET_KEY_TOKEN")
-            .build();
-    final String SECRET_KEY =securityConfigClient.getParam(paramDto).getValue();
+
 
 
     public String getEmailFromToken(String token) {
@@ -39,6 +35,11 @@ public class JwtUtil {
     }
 
     private Claims getAllClaimsFromToken(String token) {
+        //get SECRET_KEY_TOKEN from configuration service
+        ParamDto paramDto = ParamDto.builder()
+                .name("SECRET_KEY_TOKEN")
+                .build();
+        final String SECRET_KEY =securityConfigClient.getParam(paramDto).getValue();
 
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
@@ -74,6 +75,12 @@ public class JwtUtil {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("tokenId",idClient);
+
+        //get SECRET_KEY_TOKEN from configuration service
+        ParamDto paramDto = ParamDto.builder()
+                .name("SECRET_KEY_TOKEN")
+                .build();
+        final String SECRET_KEY =securityConfigClient.getParam(paramDto).getValue();
 
 
         return Jwts.builder()

@@ -40,61 +40,27 @@ public class OtpEmailService {
     private final NotificationClient notificationClient;
     private final UserClient userClient;
     private final JwtUtil jwtUtil;
-
-
     private final ConfigClient securityConfigClient;
 
     @Autowired
     private UserDetailsService userDetailsService;
 
-        ParamDto paramDto3 = ParamDto.builder()
-                .name("NEW_DATE_GENERATION")
-                .build();
-        Integer NEW_DATE_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto3).getValue());
 
 
-    private static final byte[] SECRET_KEY_BYTES = "VV3KOX7UQJ4KYAKOHMZPPH3US4CJIMH6F3ZKNB5C2OOBQ6V2KIYHM27Q".getBytes();
+
 
     public String generateOtpEmail(@RequestBody OtpEmailRequest otpEmailRequest ) {
+
+        ParamDto paramDto1 = ParamDto.builder()
+                .name("NEW_DATE_GENERATION")
+                .build();
+        Integer NEW_DATE_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+
         ClientRequest clientRequest = ClientRequest.builder()
                 .email(otpEmailRequest.getEmail())
                 .build();
-        if (otp == null) {
-            history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-            otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-            if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
-                isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
-            }else{
-                isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
-            }
-
-        } else {
-            //get maxNbrGeneration from config service
-            ParamDto paramDto = ParamDto.builder()
-                    .name("NBR_GENERATION")
-                    .build();
-            Integer NBR_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
-          
-            if (history.getNumGeneration() < NBR_GENERATION_CONFIG ) {
-                history.setCounter(counter.getCounter());
-                history.setDateGeneration(new Date());
-                history.incrementNumGeneration();
-                otp.setCounter(counter.getCounter());
-                otp.setDateGeneration(new Date());
-                otp.setAttempts(0);
-                if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
-                    isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
-                }else{
-                    isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
-                }
-
-
-            } else if ( isPast30Minutes(history.getDateGeneration()) > NEW_DATE_GENERATION_CONFIG) {
-
-
         String isSent;
         boolean isClientExist = userClient.isClientExist(clientRequest);
-
         if (!isClientExist) {
             String generatedOtp = generateOtp(counter.getCounter());
             Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
@@ -106,27 +72,33 @@ public class OtpEmailService {
             if (otp == null) {
                 history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                 otp = new Otp(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
-                if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
-                    isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
-                }else{
-                    isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                if (Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")) {
+                    isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+                } else {
+                    isSent = OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                 }
 
             } else {
-                if (history.getNumGeneration() < 5) {
+                 //get maxNbrGeneration from config service
+                 ParamDto paramDto = ParamDto.builder()
+                    .name("NBR_GENERATION")
+                    .build();
+                 Integer NBR_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
+
+                if (history.getNumGeneration() < NBR_GENERATION_CONFIG) {
                     history.setCounter(counter.getCounter());
                     history.setDateGeneration(new Date());
                     history.incrementNumGeneration();
                     otp.setCounter(counter.getCounter());
                     otp.setDateGeneration(new Date());
                     otp.setAttempts(0);
-                    if(Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")){
-                        isSent =  OtpGenerationStatusEnum.SUCCESS.getLabel();
-                    }else{
-                        isSent =  OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
+                    if (Objects.equals(notificationClient.sendOtpEmail(emailSender), "01")) {
+                        isSent = OtpGenerationStatusEnum.SUCCESS.getLabel();
+                    } else {
+                        isSent = OtpGenerationStatusEnum.EMAIL_ERROR.getLabel();
                     }
 
-                } else if (isPast15Minutes(history.getDateGeneration()) > 15) {
+                } else if (isPast15Minutes(history.getDateGeneration()) > NEW_DATE_GENERATION_CONFIG) {
                     history = new History(otpEmailRequest.getEmail(), counter.getCounter(), new Date());
                     otp.setCounter(counter.getCounter());
                     otp.setDateGeneration(new Date());
@@ -154,21 +126,26 @@ public class OtpEmailService {
         return isSent;
     }
 
-    public OtpEmailCompareResponse CompareOtpEmailResponse(@RequestBody ClientRequest otpEmailRequest) {
+
+    public OtpEmailCompareResponse CompareOtpEmailResponse(ClientRequest otpEmailRequest) {
 
         Otp otp = otpRepository.findByEmail(otpEmailRequest.getEmail());
         OtpEmailCompareResponse otpEmailCompareResponse = new OtpEmailCompareResponse();
+
         //get DATE_EXPIRATION from config service
         ParamDto paramDto = ParamDto.builder()
                 .name("DATE_EXPIRATION")
                 .build();
         Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
-        if (isPast30Minutes(otp.getDateGeneration()) < DATE_EXPIRATION_CONFIG ) {
+
+        if (isPast15Minutes(otp.getDateGeneration()) < DATE_EXPIRATION_CONFIG ) {
+
             //get maxAttemps from config service
             ParamDto paramDto1 = ParamDto.builder()
                     .name("MAX_ATTEMPTS")
                     .build();
             Integer MAX_ATTEMPTS_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+
             if (otp.getAttempts() < MAX_ATTEMPTS_CONFIG) {
 
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
@@ -212,20 +189,24 @@ public class OtpEmailService {
         }
     }
 
-    //GET OTP_LENGTH from configuration service
-    ParamDto paramDto1 = ParamDto.builder()
-            .name("OTP_LENGTH")
-            .build();
-    Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
 
-    //GET SECRET_KEY_BYTES from configuration service
-    ParamDto paramDto2 = ParamDto.builder()
-            .name("SECRET_KEY_BYTES")
-            .build();
-    final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
+
+
 
 
     public boolean compareOtp( String userInput , Integer counter) {
+
+        //GET OTP_LENGTH from configuration service
+        ParamDto paramDto1 = ParamDto.builder()
+                .name("OTP_LENGTH")
+                .build();
+        Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+
+        //GET SECRET_KEY_BYTES from configuration service
+        ParamDto paramDto2 = ParamDto.builder()
+                .name("SECRET_KEY_BYTES")
+                .build();
+        final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
 
         HOTPGenerator hotp = new HOTPGenerator.Builder( SECRET_KEY_BYTES_CONFIG)
                 .withPasswordLength( OTP_LENGTH_CONFIG)
@@ -246,6 +227,18 @@ public class OtpEmailService {
     }
 
     public String generateOtp(Integer counter) {
+
+        //GET OTP_LENGTH from configuration service
+        ParamDto paramDto1 = ParamDto.builder()
+                .name("OTP_LENGTH")
+                .build();
+        Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+
+        //GET SECRET_KEY_BYTES from configuration service
+        ParamDto paramDto2 = ParamDto.builder()
+                .name("SECRET_KEY_BYTES")
+                .build();
+        final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
 
         HOTPGenerator hotp = new HOTPGenerator.Builder( SECRET_KEY_BYTES_CONFIG)
                 .withPasswordLength( OTP_LENGTH_CONFIG)
