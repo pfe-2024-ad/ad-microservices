@@ -38,17 +38,19 @@ public class OtpPhoneService {
 
     private final ConfigClient securityConfigClient;
 
+
+
     public String generateOtpPhone(@RequestBody OtpPhoneRequest otpPhoneRequest) {
         //get DATE_EXPIRATION from config service
-        ParamDto paramDto = ParamDto.builder()
+        ParamDto paramDto1 = ParamDto.builder()
                 .name("DATE_EXPIRATION")
                 .build();
-        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto).getValue());
+        Integer DATE_EXPIRATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
 
-        ParamDto paramDto3 = ParamDto.builder()
+        ParamDto paramDto2 = ParamDto.builder()
                 .name("NEW_DATE_GENERATION")
                 .build();
-        Integer NEW_DATE_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto3).getValue());
+        Integer NEW_DATE_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto2).getValue());
 
 
         String generatedOtp = generateOtp(counter.getCounter());
@@ -75,10 +77,10 @@ public class OtpPhoneService {
 
         } else{
             //get maxNbrGeneration from config service
-            ParamDto paramDto1 = ParamDto.builder()
+            ParamDto paramDto3 = ParamDto.builder()
                     .name("NBR_GENERATION")
                     .build();
-            Integer NBR_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+            Integer NBR_GENERATION_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto3).getValue());
 
             if (history.getNumGeneration() < NBR_GENERATION_CONFIG) {
                 history.setCounter(counter.getCounter());
@@ -157,21 +159,25 @@ public class OtpPhoneService {
 
     }
 
-    //GET OTP_LENGTH from configuration service
-    ParamDto paramDto1 = ParamDto.builder()
-            .name("OTP_LENGTH")
-            .build();
-    Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
 
-    //GET SECRET_KEY_BYTES from configuration service
-    ParamDto paramDto2 = ParamDto.builder()
-            .name("SECRET_KEY_BYTES")
-            .build();
-    final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
+
+
 
 
 
     public boolean compareOtp( String userInput , Integer counter) {
+
+        //GET OTP_LENGTH from configuration service
+        ParamDto paramDto1 = ParamDto.builder()
+                .name("OTP_LENGTH")
+                .build();
+        Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+
+        //GET SECRET_KEY_BYTES from configuration service
+        ParamDto paramDto2 = ParamDto.builder()
+                .name("SECRET_KEY_BYTES")
+                .build();
+        final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
 
 
         HOTPGenerator hotp = new HOTPGenerator.Builder(SECRET_KEY_BYTES_CONFIG)
@@ -194,6 +200,18 @@ public class OtpPhoneService {
 
 
     public String generateOtp(Integer counter) {
+
+        //GET OTP_LENGTH from configuration service
+        ParamDto paramDto1 = ParamDto.builder()
+                .name("OTP_LENGTH")
+                .build();
+        Integer OTP_LENGTH_CONFIG = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
+
+        //GET SECRET_KEY_BYTES from configuration service
+        ParamDto paramDto2 = ParamDto.builder()
+                .name("SECRET_KEY_BYTES")
+                .build();
+        final byte[]  SECRET_KEY_BYTES_CONFIG = securityConfigClient.getParam(paramDto2).getValue().getBytes();
 
 
         HOTPGenerator hotp = new HOTPGenerator.Builder(SECRET_KEY_BYTES_CONFIG)
