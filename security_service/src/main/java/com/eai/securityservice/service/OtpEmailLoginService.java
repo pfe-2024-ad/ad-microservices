@@ -126,8 +126,8 @@ public class OtpEmailLoginService {
 
                     idClient= identityClient.getIdClient();
 
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(identityClient.getIdClient().toString());
-                    String newGeneratedToken = jwtUtil.generateToken(userDetails, idClient);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(otpEmailRequest.getEmail());
+                    String newGeneratedToken = jwtUtil.generateToken(userDetails);
 
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.VALID.getLabel());
                     otpEmailCompareResponse.setIdClient(idClient);

@@ -5,15 +5,17 @@ import com.eai.openfeignservice.config.ParamDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -21,17 +23,15 @@ public class JwtUtil {
 
     private final ConfigClient securityConfigClient;
 
-
-
-
     public String getEmailFromToken(String token) {
 
         return getClaimFromToken(token, Claims::getSubject);
     }
 
-    public Integer getIdClientFromToken(String token) {
+    public String getRoleFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
-        return (Integer) claims.get("tokenId");
+        List<String> roles = (List<String>) claims.get("roles");
+        return roles.get(0);
     }
 
     private Claims getAllClaimsFromToken(String token) {
@@ -65,7 +65,7 @@ public class JwtUtil {
     }
 
 
-    public String generateToken(UserDetails userDetails, Integer idClient) {
+    public String generateToken(UserDetails userDetails) {
 
         ParamDto paramDto1 = ParamDto.builder()
                 .name("TOKEN_VALIDITY_PARAM")
@@ -74,7 +74,12 @@ public class JwtUtil {
         final Integer TOKEN_VALIDITY = Integer.parseInt(securityConfigClient.getParam(paramDto1).getValue());
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("tokenId",idClient);
+
+        // Add roles to claims
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        claims.put("roles", roles);
 
         //get SECRET_KEY_TOKEN from configuration service
         ParamDto paramDto = ParamDto.builder()
