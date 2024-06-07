@@ -98,6 +98,14 @@ public class PaymentService {
         return response2;
     }
 
+    public void annulerPayment(Integer idClient){
+        ClientRequest clientRequest = ClientRequest.builder()
+                .idClient(idClient)
+                .step(ClientStep.PAYMENT_STEP)
+                .build();
+        userClient.setClientStep(clientRequest);
+    }
+
     @NotNull
     private CmiRedirections getCmiRedirections() {
         return CmiRedirections

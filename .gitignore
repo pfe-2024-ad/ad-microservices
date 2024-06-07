@@ -7,3 +7,5 @@
 /security_service/target/
 /configuration_service/target/
 /payment_service/target/
+/administrateur_service/target/
+/rdv_service/target/
