@@ -1,9 +1,11 @@
 package com.eai.client_service.controller;
 
 import com.eai.client_service.dto.InfoClientRequest;
+import com.eai.client_service.dto.mocks.ocr.ClientResponseOcrDto;
 import com.eai.client_service.service.ClientService;
 import com.eai.openfeignservice.user.ClientRequest;
 
+import com.eai.openfeignservice.user.ClientResponseForPayment;
 import com.eai.openfeignservice.user.ClientResponseForRelanche;
 import com.eai.openfeignservice.user.ClientResponseForSecurity;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +64,21 @@ public class ClientController {
     @PostMapping("get-client-step")
     ClientResponseForSecurity getClientStep(@RequestBody ClientRequest request){
         return clientService.getClientStep(request);
+    }
+
+    @PostMapping("get-client")
+    public ClientResponseOcrDto getClient(@RequestBody ClientRequest request) {
+        return clientService.getClient(request.getIdClient());
+    }
+
+    @PostMapping("set-client-step")
+    public void setClientStep(@RequestBody ClientRequest request){
+        clientService.setNewStep(request.getIdClient(), request.getStep());
+    }
+
+    @PostMapping("get-client-for-payment")
+    public ClientResponseForPayment getClientForPayment(@RequestBody Integer id){
+        return clientService.getClientForPayment(id);
     }
 
 

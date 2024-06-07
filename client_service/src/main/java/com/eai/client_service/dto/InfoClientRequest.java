@@ -1,5 +1,6 @@
 package com.eai.client_service.dto;
 
+import com.eai.openfeignservice.user.outils.enums.ClientStep;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,5 +35,7 @@ public class InfoClientRequest {
     private String villeAgence;
 
     private String adresseAgence;
+
+    private ClientStep step;
 
 }

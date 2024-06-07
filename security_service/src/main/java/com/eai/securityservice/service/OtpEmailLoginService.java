@@ -111,8 +111,8 @@ public class OtpEmailLoginService {
         if (isPast30Minutes(otp.getDateGeneration()) < 30) {
             if (otp.getAttempts() < 3) {
                 Boolean isOtpValid = verifyOtp(otpEmailRequest.getUserInput(), otp.getCounter());
-
                 Integer idClient = null;
+
                 otp.incrementAttempt();
                 otp.setIdClient(idClient);
                 otpRepository.save(otp);
@@ -123,6 +123,8 @@ public class OtpEmailLoginService {
                     ClientResponseForSecurity identityClient =  userClient.getClientStep(clientRequest);
                     otp.setIdClient(identityClient.getIdClient());
                     otpRepository.save(otp);
+
+                    idClient= identityClient.getIdClient();
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(identityClient.getIdClient().toString());
                     String newGeneratedToken = jwtUtil.generateToken(userDetails, idClient);
@@ -136,18 +138,21 @@ public class OtpEmailLoginService {
                     otpEmailCompareResponse.setStatusOtp(StatusOTP.INVALID.getLabel());
                     otpEmailCompareResponse.setIdClient(null);
                     otpEmailCompareResponse.setJwtToken(null);
+                    otpEmailCompareResponse.setStep(null);
                     return otpEmailCompareResponse;
                 }
             } else{
                 otpEmailCompareResponse.setStatusOtp(StatusOTP.EXPIRED_ATTEMPT.getLabel());
                 otpEmailCompareResponse.setIdClient(null);
                 otpEmailCompareResponse.setJwtToken(null);
+                otpEmailCompareResponse.setStep(null);
                 return otpEmailCompareResponse;
             }
         } else {
             otpEmailCompareResponse.setStatusOtp(StatusOTP.TIMEOUT.getLabel());
             otpEmailCompareResponse.setIdClient(null);
             otpEmailCompareResponse.setJwtToken(null);
+            otpEmailCompareResponse.setStep(null);
             return otpEmailCompareResponse;
         }
     }
