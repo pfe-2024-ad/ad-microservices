@@ -27,7 +27,6 @@ public class AdministrateurService {
     private final CongeRepository congeRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}|;:,.<>?";
 
     public void initAdmin() {
         Administrateur admin = new Administrateur();
