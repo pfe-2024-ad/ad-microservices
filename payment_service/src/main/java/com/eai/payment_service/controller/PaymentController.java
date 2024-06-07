@@ -24,6 +24,11 @@ public class PaymentController {
 
     }
 
+    @PostMapping("/payment/annuler")
+    public  void  annulerPayment(@RequestBody NewPaymentRequest newPaymentRequest){
+        paymentService.annulerPayment(newPaymentRequest.getIdClient());
+    }
+
     @PostMapping("/cmi/ok")
     public String ok(@RequestBody LinkedMultiValueMap<String, String> parameters) {
         return paymentService.ok(parameters);
