@@ -2,13 +2,16 @@ package com.eai.contact_service.service;
 
 import com.eai.contact_service.model.Contact;
 import com.eai.contact_service.repository.ContactRepository;
+
 import com.eai.openfeignservice.notification.EmailSender;
 import com.eai.openfeignservice.notification.NotificationClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ContactService {
+
     private final ContactRepository contactRepository;
     private final NotificationClient notificationClient;
 
