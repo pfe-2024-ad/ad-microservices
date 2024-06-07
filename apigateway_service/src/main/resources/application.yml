@@ -19,22 +19,32 @@ spring:
           uri: lb://CLIENT-SERVICE
           predicates:
             - Path=/agd/client-service/mocks/**
+
+
         - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
             - Path=/agd/notification-service/**
+
+
         - id: security-service
           uri: lb://SECURITY-SERVICE
           predicates:
             - Path=/agd/security-service/**
+
+
         - id: relaunch-service
           uri: lb://RELAUNCH-SERVICE
           predicates:
             - Path=/agd/relaunch-service/**
+
+
         - id: configuration-service
           uri: lb://CONFIGURATION-SERVICE
           predicates:
             - Path=/agd/configuration-service/**
+
+
         - id: payment-service
           uri: lb://PAYMENT-SERVICE
           predicates:
@@ -45,6 +55,36 @@ spring:
           uri: lb://PAYMENT-SERVICE
           predicates:
             - Path=/agd/payment-service/cmi/**
+
+
+        - id: administrateur-service-admin
+          uri: lb://ADMINISTRATEUR-SERVICE
+          predicates:
+            - Path=/agd/administrateur-service/admin/**
+          filters:
+              - name: AuthenticationFilter
+              - name: AuthenticationAdminFilter
+        - id: administrateur-service-agent
+          uri: lb://ADMINISTRATEUR-SERVICE
+          predicates:
+            - Path=/agd/administrateur-service/agent/**
+          filters:
+            - name: AuthenticationFilter
+            - name: AuthenticationAgentFilter
+        - id: administrateur-service-api
+          uri: lb://ADMINISTRATEUR-SERVICE
+          predicates:
+            - Path=/agd/administrateur-service/api/**
+          filters:
+            - AuthenticationFilter
+
+
+        - id: rdv-service
+          uri: lb://RDV-SERVICE
+          predicates:
+            - Path=/agd/rdv-service/**
+          filters:
+            - AuthenticationFilter
       globalcors:
         cors-configurations:
           '[/**]':
