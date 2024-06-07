@@ -9,6 +9,7 @@ import com.eai.client_service.dto.mocks.ocr.trustid.FluxSortieTrustIdDto;
 import com.eai.client_service.outils.enums.OcrStatus;
 import com.eai.openfeignservice.config.ConfigClient;
 import com.eai.openfeignservice.config.ParamDto;
+import com.eai.openfeignservice.user.outils.enums.ClientStep;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpEntity;
@@ -92,6 +93,7 @@ public class OcrService {
 
            InfoClientRequest infoClientRequest = InfoClientRequest.builder()
                 .idClient(id)
+                   .step(ClientStep.OCR_STEP)
                 .nom(responseEntityId.getBody().getDocumentDto().getNom())
                 .prenom(responseEntityId.getBody().getDocumentDto().getPrenom())
                 .dateNaissance(responseEntityId.getBody().getDocumentDto().getDateNaissance())

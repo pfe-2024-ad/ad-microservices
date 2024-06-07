@@ -1,5 +1,6 @@
 package com.eai.client_service.dto.mocks.ocr;
 
+import com.eai.openfeignservice.user.outils.enums.PackName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,10 +18,20 @@ public class ClientResponseOcrDto {
 
     private String prenom;
 
+    private String email;
+
+    private String phone;
+
     private String dateNaissance;
 
     private String cin;
 
     private String adresseResidence;
+
+    private String ville;
+
+    private String agence;
+
+    private PackName pack;
 
 }
