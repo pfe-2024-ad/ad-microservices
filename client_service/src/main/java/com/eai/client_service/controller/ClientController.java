@@ -57,8 +57,8 @@ public class ClientController {
 
 
     @PostMapping("get-email-security")
-    public ClientResponseForSecurity getClientForSecurity(@RequestBody Integer id){
-        return clientService.getEmailForSecurity(id);
+    public ClientResponseForSecurity getClientForSecurity(@RequestBody String email){
+        return clientService.getEmailForSecurity(email);
     }
 
     @PostMapping("get-client-step")

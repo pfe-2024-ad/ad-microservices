@@ -1,7 +1,6 @@
 package com.eai.securityservice.configuration;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Configuration
-@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -39,7 +37,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String emailToken = null;
         String jwtToken = null;
 
-
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             try {
@@ -57,9 +54,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (emailToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
 
-            String idToken = jwtUtil.getIdClientFromToken(jwtToken).toString();
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(emailToken);
 
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(idToken);
             if (jwtUtil.validateToken(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

@@ -25,7 +25,7 @@ public interface UserClient {
     List<ClientResponseForRelanche> getClientForRelanche();
 
     @PostMapping("get-email-security")
-    ClientResponseForSecurity getClientForSecurity(@RequestBody Integer id);
+    ClientResponseForSecurity getClientForSecurity(@RequestBody String email);
 
     @PostMapping("send-exist-email")
     String sendEmailExist(@RequestBody EmailSender request);
