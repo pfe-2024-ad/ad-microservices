@@ -1,4 +1,4 @@
-package com.eai.openfeignservice.user;
+package com.eai.openfeignservice.administrateur;
 
 import com.eai.openfeignservice.administrateur.outils.enums.Role;
 import lombok.AllArgsConstructor;
@@ -10,9 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ClientResponseForSecurity {
-    private Integer idClient;
+public class AdminResponseForSecurity {
+
+
     private String email;
+
     private Role role;
-    private String clientStep;
+
+    private String motDePasse;
 }

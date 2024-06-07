@@ -7,6 +7,7 @@ import com.eai.client_service.outils.enums.*;
 import com.eai.client_service.model.Client;
 import com.eai.client_service.repository.ClientRepository;
 import com.eai.client_service.repository.PackRepository;
+import com.eai.openfeignservice.administrateur.outils.enums.Role;
 import com.eai.openfeignservice.relanche.RelancheClient;
 import com.eai.openfeignservice.relanche.RelancheRequest;
 import com.eai.openfeignservice.user.ClientRequest;
@@ -46,7 +47,7 @@ public class ClientService {
         } else {
             country = "Autre";
         }
-        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil(), clientStep, dateCreation, country);
+        Client client = new Client(clientRequest.getEmail(), status, clientRequest.getProfil(), clientStep, dateCreation, country, Role.CLIENT);
 
         Pack pack = new Pack(clientRequest.getNomPack(), clientRequest.getTypePack(), clientRequest.getOffres(), clientRequest.getNomCarte(),
                 clientRequest.getSendCarte(), clientRequest.getServices());
@@ -189,12 +190,20 @@ public class ClientService {
         return clientResponse;
     }
 
-    public ClientResponseForSecurity getEmailForSecurity(Integer id){
-        Client client = clientRepository.findById(id).get();
-        ClientResponseForSecurity clientResponseForSecurity = ClientResponseForSecurity.builder()
-                .idClient(client.getId())
-                .email(client.getEmail())
-                .build();
+    public ClientResponseForSecurity getEmailForSecurity(String email){
+
+        Client client = clientRepository.findByEmail(email);
+
+        ClientResponseForSecurity clientResponseForSecurity = new ClientResponseForSecurity();
+        if(client != null) {
+            clientResponseForSecurity.setIdClient(client.getId());
+            clientResponseForSecurity.setEmail(client.getEmail());
+            clientResponseForSecurity.setRole(client.getRole());
+        } else {
+            clientResponseForSecurity.setIdClient(null);
+            clientResponseForSecurity.setEmail(null);
+            clientResponseForSecurity.setRole(null);
+        }
         return clientResponseForSecurity;
 
     }
