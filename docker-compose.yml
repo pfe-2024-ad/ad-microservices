@@ -1,0 +1,105 @@
+version: "3.8"
+services:
+  Client_Server_Db:
+    image: mariadb:10.8.2
+    container_name: bd_client
+    environment:
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: bd_client
+    ports:
+      - 4000:3306
+    volumes:
+      - ./private/database/datadir:/var/lib/mariadb
+
+  Security_Server_Db:
+    image: mariadb:10.8.2
+    container_name: bd_security
+    environment:
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: bd_security
+    ports:
+      - 4001:3306
+    volumes:
+      - ./private/database/datadir:/var/lib/mariadb
+
+  Configuration_Server_Db:
+    image: mariadb:10.8.2
+    container_name: bd_config
+    environment:
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: bd_config
+    ports:
+      - 4002:3306
+    volumes:
+      - ./private/database/datadir:/var/lib/mariadb
+
+  Administrateur_Server_Db:
+    image: mariadb:10.8.2
+    container_name: bd_admin
+    environment:
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: bd_admin
+    ports:
+      - 4003:3306
+    volumes:
+      - ./private/database/datadir:/var/lib/mariadb
+
+  Relaunch_Server_Db:
+    image: mariadb:10.8.2
+    container_name: bd_relaunch
+    environment:
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: bd_relaunch
+    ports:
+      - 4004:3306
+    volumes:
+      - ./private/database/datadir:/var/lib/mariadb
+
+  Payment_Server_Db:
+    image: mariadb:10.8.2
+    container_name: bd_payment
+    environment:
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: bd_payment
+    ports:
+      - 4005:3306
+    volumes:
+      - ./private/database/datadir:/var/lib/mariadb
+
+  Rdv_Server_Db:
+    image: mariadb:10.8.2
+    container_name: bd_rdv
+    environment:
+      MYSQL_ROOT_HOST: localhost
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: bd_rdv
+    ports:
+      - 4006:3306
+    volumes:
+      - ./private/database/datadir:/var/lib/mariadb
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
