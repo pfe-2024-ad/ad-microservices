@@ -38,8 +38,6 @@ public class ClientResponseOcrDto {
 
     private PackName pack;
     private List<PackOffres> offres;
-
     private List<Services> services;
-
     private String dateCreation;
 }

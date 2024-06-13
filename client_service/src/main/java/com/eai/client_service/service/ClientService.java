@@ -155,6 +155,7 @@ public class ClientService {
                     .services(client.getPack().getServices())
                     .dateCreation(client.getDateCreation())
                     .build();
+
             return clientResponseOcrDto;
         } else {
             return null;
