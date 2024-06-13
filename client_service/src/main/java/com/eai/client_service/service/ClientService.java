@@ -151,6 +151,9 @@ public class ClientService {
                     .ville(client.getVille())
                     .agence(client.getAdresseAgence()+" "+client.getVilleAgence())
                     .pack(client.getPack().getNomPack())
+                    .offres(client.getPack().getOffres())
+                    .services(client.getPack().getServices())
+                    .dateCreation(client.getDateCreation())
                     .build();
             return clientResponseOcrDto;
         } else {
